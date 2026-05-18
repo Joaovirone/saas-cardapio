@@ -10,7 +10,6 @@ import com.saas_cardapio.app.entity.Pedido;
 import com.saas_cardapio.app.repository.PedidoRepository;
 
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 
 @Service
 @AllArgsConstructor
