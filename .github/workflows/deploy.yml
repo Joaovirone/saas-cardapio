@@ -1,0 +1,42 @@
+name: Deploy SaaS Cardápio - CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Baixar o código do repositório
+        uses: actions/checkout@v3
+
+      - name: 2. Configurar o Java 21
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'corretto' # Versão oficial da Amazon para o Java
+          java-version: '21'
+          cache: 'maven' # Acelera os próximos deploys
+
+      - name: 3. Compilar o projeto (Maven)
+        run: mvn clean package
+
+      - name: 4. Instalar o Node.js (necessário para o Serverless Framework)
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: 5. Instalar o Serverless Framework
+        run: npm install -g serverless
+
+      - name: 6. Configurar Credenciais da AWS
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: sa-east-1
+
+      - name: 7. Deploy na AWS (Magia Acontece)
+        run: serverless deploy --stage prd
