@@ -1,11 +1,12 @@
 package com.saas_cardapio.app.handler;
 
 import com.amazonaws.serverless.exceptions.ContainerInitializationException;
-import com.amazonaws.serverless.proxy.model.AwsProxyRequest;
+import com.amazonaws.serverless.proxy.model.HttpApiV2ProxyRequest; 
 import com.amazonaws.serverless.proxy.model.AwsProxyResponse;
 import com.amazonaws.serverless.proxy.spring.SpringBootLambdaContainerHandler;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
+
 import com.saas_cardapio.app.AppApplication; 
 
 import java.io.IOException;
@@ -14,10 +15,11 @@ import java.io.OutputStream;
 
 public class StreamLambdaHandler implements RequestStreamHandler {
     
-    private static SpringBootLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler;
+    private static SpringBootLambdaContainerHandler<HttpApiV2ProxyRequest, AwsProxyResponse> handler;
+    
     static {
         try {
-            handler = SpringBootLambdaContainerHandler.getAwsProxyHandler(AppApplication.class);
+            handler = SpringBootLambdaContainerHandler.getHttpApiV2ProxyHandler(AppApplication.class);
         } catch (ContainerInitializationException e) {
             e.printStackTrace();
             throw new RuntimeException("Falha ao iniciar a aplicação Spring Boot na AWS", e);
