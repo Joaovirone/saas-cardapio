@@ -8,6 +8,10 @@ provider:
   region: sa-east-1 
   memorySize: 3008
   timeout: 30
+
+  apiGateway:
+    apiKeys:
+      - cardapio-api-key
   environment:
     TABELA_PEDIDOS: Pedidos 
   iam:
@@ -31,9 +35,10 @@ functions:
     handler: com.saas_cardapio.app.handler.StreamLambdaHandler::handleRequest
     events:
       
-      - httpApi:
+      - http:
           path: /{proxy+}
-          method: '*'
+          method: any
+          private: true
 
 resources:
   Resources:
