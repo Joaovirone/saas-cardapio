@@ -1,5 +1,10 @@
 package com.saas_cardapio.app.dto;
 
-public class PedidoResponse {
-    
-}
+public record PedidoResponse(
+
+    String pedidoId,
+    String mensagem,
+    Double valorTotal,
+    String status
+
+) {}
