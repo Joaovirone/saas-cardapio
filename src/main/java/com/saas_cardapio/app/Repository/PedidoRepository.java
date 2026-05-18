@@ -29,11 +29,18 @@ public class PedidoRepository {
     public void salvar(Pedido pedido) {
         Map<String, AttributeValue> item = new HashMap<>();
 
-        item.put("id", AttributeValue.builder().s(pedido.getId()).build());
-        item.put("clienteNome", AttributeValue.builder().s(pedido.getClienteNome()).build());
-        item.put("telefone", AttributeValue.builder().s(pedido.getTelefone()).build());
-        item.put("status", AttributeValue.builder().s(pedido.getStatus()).build());
-        item.put("dataCriacao", AttributeValue.builder().s(pedido.getDataCriacao()).build());
+        item.put("id", AttributeValue.builder().s(pedido.getId() != null ? pedido.getId() : java.util.UUID.randomUUID().toString()).build());
+        
+        String nome = (pedido.getClienteNome() != null && !pedido.getClienteNome().isBlank()) ? pedido.getClienteNome() : "Cliente Anônimo";
+        String tel = (pedido.getTelefone() != null && !pedido.getTelefone().isBlank()) ? pedido.getTelefone() : "Não Informado";
+        String status = (pedido.getStatus() != null && !pedido.getStatus().isBlank()) ? pedido.getStatus() : "RECEBIDO";
+        String data = (pedido.getDataCriacao() != null && !pedido.getDataCriacao().isBlank()) ? pedido.getDataCriacao() : java.time.Instant.now().toString();
+
+        item.put("clienteNome", AttributeValue.builder().s(nome).build());
+        item.put("telefone", AttributeValue.builder().s(tel).build());
+        item.put("status", AttributeValue.builder().s(status).build());
+        item.put("dataCriacao", AttributeValue.builder().s(data).build());
+        
         item.put("valorTotal", AttributeValue.builder().n(String.valueOf(pedido.getValorTotal())).build());
 
         if (pedido.getItens() != null && !pedido.getItens().isEmpty()) {
@@ -44,7 +51,7 @@ public class PedidoRepository {
         }
 
         PutItemRequest putItemRequest = PutItemRequest.builder()
-                .tableName(tableName) 
+                .tableName(tableName)
                 .item(item)
                 .build();
 
