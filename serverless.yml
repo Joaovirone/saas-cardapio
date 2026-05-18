@@ -6,7 +6,7 @@ provider:
   name: aws
   runtime: java21
   region: sa-east-1 
-  memorySize: 1024
+  memorySize: 3072
   timeout: 30
   environment:
     TABELA_PEDIDOS: Pedidos 
