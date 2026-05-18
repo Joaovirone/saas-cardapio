@@ -3,7 +3,7 @@ name: Deploy SaaS Cardápio - CI/CD
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build-and-deploy:
