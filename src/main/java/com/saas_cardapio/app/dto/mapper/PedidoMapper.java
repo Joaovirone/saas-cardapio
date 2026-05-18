@@ -11,7 +11,11 @@ import com.saas_cardapio.app.entity.Pedido;
 @Component
 public class PedidoMapper {
 
-    private final ModelMapper modelMapper = new ModelMapper();
+    private final ModelMapper modelMapper;
+
+    public PedidoMapper(){
+        this.modelMapper = new ModelMapper();
+    }
     
     public Pedido toPedido(PedidoRequestDto pedido){
         return modelMapper.map(pedido, Pedido.class);

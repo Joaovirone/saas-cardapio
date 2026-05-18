@@ -1,7 +1,8 @@
 spring:
   application:
     name: cardapio-api
-
+  main:
+    lazy-initialization: true
 
 aws:
   dynamodb:
