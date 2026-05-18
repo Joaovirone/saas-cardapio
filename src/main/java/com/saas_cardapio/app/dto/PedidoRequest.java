@@ -1,5 +1,15 @@
 package com.saas_cardapio.app.dto;
 
-public class PedidoRequest {
-    
+import java.util.*;
+
+
+
+public record PedidoRequest (
+
+    String nomeCliente,
+    String telefone,
+    List<ItemRequest> itens
+) {
+
 }
+
