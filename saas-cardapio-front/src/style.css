@@ -5,3 +5,7 @@
 body {
   background-color: #121212;
 }
+
+/* Utilitário para esconder a barra de rolagem (Fica visual de app nativo) */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
