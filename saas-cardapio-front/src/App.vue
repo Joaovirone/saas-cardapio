@@ -268,11 +268,12 @@ function confirmarAdicao() {
              <h1 class="text-4xl font-black text-white tracking-wider drop-shadow-lg italic">
                CHAPA <span class="text-brand-orange">QUENTE</span>
              </h1>
+             <p class="text-gray-300 text-sm mt-2">{{ restaurante.cidade }} - Entrega em {{ restaurante.tempoEntrega }}</p>
           </div>
         </div>
         <div class="px-5 space-y-5 -mt-2 relative z-10">
           <button @click="tabAtiva = 'cardapio'" class="w-full bg-brand-orange hover:bg-orange-600 text-white rounded-2xl py-4 font-bold text-lg flex items-center justify-center gap-2 shadow-lg">
-            PEDIR NO {{ restaurante.nome.toUpperCase() }} <ChevronRight class="w-5 h-5" />
+            FAÇA SEU PEDIDO NO {{ restaurante.nome.toUpperCase() }} <ChevronRight class="w-5 h-5" />
           </button>
         </div>
       </template>
