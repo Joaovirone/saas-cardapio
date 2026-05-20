@@ -7,7 +7,8 @@ import CartView from './views/CartView.vue';
 import ProfileView from './views/ProfileView.vue';
 import ProductModal from './components/ProductModal.vue';
 import BottomNavigation from './components/BottomNavigation.vue';
-import { 
+import ToastContainer from './components/ToastContainer.vue';
+import {
   restaurante,
   categoriasMenu,
   produtosMenu,
@@ -15,14 +16,21 @@ import {
   carrinho,
   favoritos,
   salvarCarrinho,
-  salvarFavoritos
+  salvarFavoritos,
+  salvarPedido
 } from './stores/cardapio';
+import { useToast } from './composables/useToast';
 import type { Produto, Adicional, PerfillCliente, CarrinhoItem } from './types';
 
 // ==========================================
 // NAVEGAÇÃO
 // ==========================================
 const tabAtiva = ref('home');
+
+// ==========================================
+// TOAST NOTIFICATIONS
+// ==========================================
+const { toasts, showToast, removeToast } = useToast();
 
 // ==========================================
 // MENU - BUSCA E FILTROS
@@ -95,7 +103,7 @@ function adicionarAoCarrinho() {
   if (!produtoSelecionado.value) return;
 
   const adicionais = produtoSelecionado.value.adicionais
-    ? produtoSelecionado.value.adicionais.filter((a: Adicional) => 
+    ? produtoSelecionado.value.adicionais.filter((a: Adicional): a is Adicional =>
         adicionaisSelecionados.value.includes(a.id)
       )
     : [];
@@ -127,9 +135,32 @@ function removerItemDoCarrinho(itemId: number) {
 
 function finalizarPedido() {
   if (carrinho.value.length === 0) return;
+
+  // Calcular subtotal
+  const subtotal = carrinho.value.reduce((soma: number, item: CarrinhoItem) => {
+    const adicionais = item.adicionais.reduce((s: number, a: Adicional) => s + a.preco, 0);
+    return soma + (item.produto.preco + adicionais) * item.quantidade;
+  }, 0);
+
+  // Criar pedido
+  const pedido = {
+    id: `${new Date().toISOString().slice(0, 10)}-${Date.now()}`,
+    data: new Date().toISOString(),
+    itens: [...carrinho.value],
+    subtotal,
+    desconto: 0, // Implementar desconto de cupom depois
+    frete: frete.value,
+    total: subtotal + frete.value,
+    status: 'pendente' as const
+  };
+
+  // Salvar pedido no histórico
+  salvarPedido(pedido);
+
   pedidoFinalizado.value = true;
   carrinho.value = [];
   salvarCarrinho();
+  showToast('Pedido finalizado com sucesso! 🎉', 'success', 5000);
 }
 
 // ==========================================
@@ -154,6 +185,26 @@ function salvarPerfil() {
 }
 
 // ==========================================
+// FUNÇÕES - HISTÓRICO DE PEDIDOS
+// ==========================================
+function repetirPedido(pedido: any) {
+  // Adicionar todos os itens do pedido anterior ao carrinho
+  pedido.itens.forEach((item: CarrinhoItem) => {
+    carrinho.value.push({
+      id: Date.now() + Math.random(),
+      produto: item.produto,
+      quantidade: item.quantidade,
+      adicionais: item.adicionais,
+      observacao: item.observacao
+    });
+  });
+
+  salvarCarrinho();
+  showToast(`${pedido.itens.length} item(ns) adicionado(s) ao carrinho!`, 'success');
+  tabAtiva.value = 'carrinho';
+}
+
+// ==========================================
 // WATCHERS
 // ==========================================
 watch(carrinho, salvarCarrinho, { deep: true });
@@ -162,7 +213,10 @@ watch(favoritos, salvarFavoritos, { deep: true });
 
 <template>
   <div class="h-screen w-full bg-brand-dark text-gray-100 flex flex-col max-w-md mx-auto relative overflow-hidden font-sans shadow-2xl">
-    
+
+    <!-- TOAST CONTAINER -->
+    <ToastContainer :toasts="toasts" :on-remove="removeToast" />
+
     <!-- MAIN CONTENT -->
     <main class="flex-1 overflow-hidden pb-20">
       
@@ -217,6 +271,7 @@ watch(favoritos, salvarFavoritos, { deep: true });
           :perfil-salvo="perfilSalvo"
           @update:perfil-data="Object.assign(perfil, $event)"
           @salvar="salvarPerfil"
+          @repetir-pedido="repetirPedido"
         />
       </template>
     </main>

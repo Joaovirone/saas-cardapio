@@ -56,3 +56,24 @@ export interface PerfillCliente {
   endereco: string;
   observacoes: string;
 }
+
+export interface Cupom {
+  codigo: string;
+  desconto: number; // percentual (0-100)
+  tipo: 'percentual' | 'fixo'; // percentual ou valor fixo
+  minimo?: number; // valor mínimo para aplicar
+  validade?: string; // data de validade
+  ativo: boolean;
+}
+
+export interface Pedido {
+  id: string;
+  data: string;
+  itens: CarrinhoItem[];
+  subtotal: number;
+  desconto: number;
+  frete: number;
+  total: number;
+  cupomUsado?: Cupom;
+  status: 'pendente' | 'entregue' | 'cancelado';
+}

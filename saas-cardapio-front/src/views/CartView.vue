@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { ShoppingBag } from 'lucide-vue-next';
+import { ref, computed } from 'vue';
+import { ShoppingBag, Check, AlertCircle } from 'lucide-vue-next';
 import CartItem from '../components/CartItem.vue';
-import type { CarrinhoItem } from '../types';
+import { validarCupom } from '../stores/cardapio';
+import type { CarrinhoItem, Cupom } from '../types';
 
 interface Props {
   carrinho: CarrinhoItem[];
@@ -19,6 +20,10 @@ defineEmits<{
   irParaCardapio: [];
 }>();
 
+const cupomInput = ref('');
+const cupomAplicado = ref<Cupom | null>(null);
+const cupomErro = ref('');
+
 const formatarPreco = (preco: number) => `R$ ${preco.toFixed(2).replace('.', ',')}`;
 
 const subtotal = computed(() => {
@@ -28,7 +33,42 @@ const subtotal = computed(() => {
   }, 0);
 });
 
-const total = computed(() => subtotal.value + props.frete);
+const desconto = computed(() => {
+  if (!cupomAplicado.value) return 0;
+
+  if (cupomAplicado.value.tipo === 'percentual') {
+    return (subtotal.value * cupomAplicado.value.desconto) / 100;
+  } else {
+    return cupomAplicado.value.desconto;
+  }
+});
+
+const total = computed(() => subtotal.value - desconto.value + props.frete);
+
+function aplicarCupom() {
+  cupomErro.value = '';
+
+  if (!cupomInput.value.trim()) {
+    cupomErro.value = 'Digite um código de cupom';
+    return;
+  }
+
+  const resultado = validarCupom(cupomInput.value, subtotal.value);
+
+  if (resultado.valido && resultado.cupom) {
+    cupomAplicado.value = resultado.cupom;
+    cupomInput.value = '';
+  } else {
+    cupomErro.value = resultado.erro || 'Erro ao validar cupom';
+    cupomAplicado.value = null;
+  }
+}
+
+function removerCupom() {
+  cupomAplicado.value = null;
+  cupomInput.value = '';
+  cupomErro.value = '';
+}
 </script>
 
 <template>
@@ -66,6 +106,45 @@ const total = computed(() => subtotal.value + props.frete);
       </div>
     </div>
 
+    <!-- Cupom Section -->
+    <div v-if="carrinho.length > 0" class="px-4 py-3 border-t border-gray-800 bg-brand-dark/50">
+      <div v-if="!cupomAplicado" class="flex gap-2">
+        <div class="flex-1 relative">
+          <input
+            v-model="cupomInput"
+            @keyup.enter="aplicarCupom"
+            type="text"
+            placeholder="Código de cupom"
+            class="w-full bg-brand-card border border-gray-800 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-orange transition-colors placeholder-gray-600"
+            :class="cupomErro ? 'border-red-500' : ''"
+          />
+          <p v-if="cupomErro" class="text-red-400 text-xs mt-1 absolute top-full left-0">{{ cupomErro }}</p>
+        </div>
+        <button
+          @click="aplicarCupom"
+          class="bg-brand-orange hover:bg-orange-600 text-white px-4 py-2 rounded-xl font-semibold text-sm transition-colors active:scale-95"
+        >
+          Aplicar
+        </button>
+      </div>
+
+      <div v-else class="flex items-center justify-between bg-green-900/20 border border-green-500/50 rounded-xl px-3 py-2">
+        <div class="flex items-center gap-2">
+          <Check class="w-4 h-4 text-green-400" />
+          <div>
+            <p class="text-green-300 text-sm font-semibold">{{ cupomAplicado.codigo }}</p>
+            <p class="text-green-400/70 text-xs">{{ cupomAplicado.tipo === 'percentual' ? `${cupomAplicado.desconto}% de desconto` : `R$ ${cupomAplicado.desconto.toFixed(2)} de desconto` }}</p>
+          </div>
+        </div>
+        <button
+          @click="removerCupom"
+          class="text-green-400 hover:text-green-300 text-xs font-semibold"
+        >
+          Remover
+        </button>
+      </div>
+    </div>
+
     <!-- Resumo e Checkout -->
     <div v-if="carrinho.length > 0" class="sticky bottom-0 bg-brand-dark border-t border-gray-800 p-4 space-y-3">
       <div class="bg-brand-dark border border-gray-800 rounded-2xl p-4 space-y-3">
@@ -73,10 +152,19 @@ const total = computed(() => subtotal.value + props.frete);
           <span>Subtotal</span>
           <span>{{ formatarPreco(subtotal) }}</span>
         </div>
+
+        <transition name="fade">
+          <div v-if="cupomAplicado" class="flex justify-between text-green-400 text-sm">
+            <span>Desconto ({{ cupomAplicado.codigo }})</span>
+            <span>-{{ formatarPreco(desconto) }}</span>
+          </div>
+        </transition>
+
         <div class="flex justify-between text-gray-400 text-sm">
           <span>Taxa de Entrega</span>
           <span>{{ formatarPreco(frete) }}</span>
         </div>
+
         <div class="border-t border-gray-800 pt-3 flex justify-between text-white font-black text-lg">
           <span>Total</span>
           <span>{{ formatarPreco(total) }}</span>

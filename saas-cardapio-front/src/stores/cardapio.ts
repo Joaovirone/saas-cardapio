@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue';
-import type { Produto, Promocao, RestauranteInfo } from '../types';
+import type { Produto, Promocao, RestauranteInfo, Cupom, Pedido } from '../types';
 
 // ==========================================
 // RESTAURANTE INFO
@@ -294,3 +294,79 @@ export const produtosComFavoritos = computed(() => {
     isFavorito: favoritos.value.includes(p.id)
   }));
 });
+
+// ==========================================
+// CUPONS DISPONÍVEIS
+// ==========================================
+export const cupons: Cupom[] = [
+  {
+    codigo: 'WELCOME10',
+    desconto: 10,
+    tipo: 'percentual',
+    minimo: 50,
+    validade: '2026-12-31',
+    ativo: true
+  },
+  {
+    codigo: 'SEXTA20',
+    desconto: 20,
+    tipo: 'percentual',
+    minimo: 80,
+    validade: '2026-12-31',
+    ativo: true
+  },
+  {
+    codigo: 'FRETE5',
+    desconto: 5,
+    tipo: 'fixo',
+    minimo: 30,
+    validade: '2026-12-31',
+    ativo: true
+  },
+  {
+    codigo: 'PRIMEIRACOMPRA',
+    desconto: 15,
+    tipo: 'percentual',
+    minimo: 40,
+    validade: '2026-12-31',
+    ativo: true
+  }
+];
+
+// ==========================================
+// HISTÓRICO DE PEDIDOS PERSISTENTE
+// ==========================================
+function carregarPedidos() {
+  const salvo = localStorage.getItem('cardapio_pedidos');
+  return salvo ? JSON.parse(salvo) : [];
+}
+
+export const historicoPedidos = ref<Pedido[]>(carregarPedidos());
+
+export function salvarPedido(pedido: Pedido) {
+  historicoPedidos.value.unshift(pedido); // Adiciona no início
+  localStorage.setItem('cardapio_pedidos', JSON.stringify(historicoPedidos.value));
+}
+
+export function validarCupom(codigo: string, total: number): { valido: boolean; cupom?: Cupom; erro?: string } {
+  const cupom = cupons.find(c => c.codigo === codigo.toUpperCase());
+
+  if (!cupom) {
+    return { valido: false, erro: 'Cupom não encontrado' };
+  }
+
+  if (!cupom.ativo) {
+    return { valido: false, erro: 'Cupom inativo' };
+  }
+
+  if (cupom.validade && new Date(cupom.validade) < new Date()) {
+    return { valido: false, erro: 'Cupom expirado' };
+  }
+
+  if (cupom.minimo && total < cupom.minimo) {
+    return { valido: false, erro: `Mínimo de R$ ${cupom.minimo.toFixed(2)} não atingido` };
+  }
+
+  return { valido: true, cupom };
+}
+
