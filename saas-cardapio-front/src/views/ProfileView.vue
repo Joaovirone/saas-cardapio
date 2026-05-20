@@ -1,17 +1,16 @@
 <script setup lang="ts">
-import { ref, computed, reactive } from 'vue';
+import { ref, computed, reactive, watch } from 'vue';
 import { useFormValidation } from '../composables/useFormValidation';
 import { useToast } from '../composables/useToast';
-import { historicoPedidos } from '../stores/cardapio';
 import type { PerfillCliente, Pedido } from '../types';
-import { ChevronDown } from 'lucide-vue-next';
 
 interface Props {
   perfilData: PerfillCliente;
   perfilSalvo: boolean;
+  historicoPedidos?: Pedido[];
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 
 defineEmits<{
   'update:perfilData': [value: PerfillCliente];
