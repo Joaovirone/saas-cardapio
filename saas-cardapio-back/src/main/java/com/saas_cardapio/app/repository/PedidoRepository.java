@@ -105,6 +105,38 @@ public class PedidoRepository {
         System.out.println("Status do pedido " + pedidoId + " atualizado para " + novoStatus);
     }
 
+    private Pedido converterMapaParaPedido(Map<String, AttributeValue> item) {
+        if (item == null || item.isEmpty()) return null;
+
+        Pedido pedido = new Pedido();
+        pedido.setId(item.get("id") != null ? item.get("id").s() : null);
+        pedido.setClienteNome(item.get("clienteNome") != null ? item.get("clienteNome").s() : "Anônimo");
+        pedido.setTelefone(item.get("telefone") != null ? item.get("telefone").s() : "Não informado");
+        pedido.setStatus(item.get("status") != null ? item.get("status").s() : "RECEBIDO");
+        pedido.setDataCriacao(item.get("dataCriacao") != null ? item.get("dataCriacao").s() : null);
+        
+        if (item.get("valorTotal") != null) {
+            pedido.setValorTotal(Double.parseDouble(item.get("valorTotal").n()));
+        }
+
+        if (item.get("itens") != null && item.get("itens").hasL()) {
+            List<ItemPedido> listaItens = new ArrayList<>();
+            for (AttributeValue val : item.get("itens").l()) {
+                if (val.hasM()) {
+                    Map<String, AttributeValue> mapaItem = val.m();
+                    ItemPedido ip = new ItemPedido();
+                    ip.setNome(mapaItem.get("nome") != null ? mapaItem.get("nome").s() : "");
+                    if (mapaItem.get("preco") != null) ip.setPreco(Double.parseDouble(mapaItem.get("preco").n()));
+                    if (mapaItem.get("quantidade") != null) ip.setQuantidade(Integer.parseInt(mapaItem.get("quantidade").n()));
+                    listaItens.add(ip);
+                }
+            }
+            pedido.setItens(listaItens);
+        }
+
+        return pedido;
+    }
+
     
 
 
