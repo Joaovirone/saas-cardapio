@@ -6,8 +6,8 @@ import {
   SafeAreaView,
   StatusBar,
   FlatList,
-  Dimensions,
   Alert,
+  useWindowDimensions // <-- Trocamos Dimensions por useWindowDimensions
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -26,11 +26,13 @@ import { PedidoService } from './src/services/PedidoService';
 import { COLORS, SPACING } from './src/constants/theme';
 import { Produto } from './src/types';
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
 const NUM_COLUMNS = 2;
-const CARD_WIDTH = (SCREEN_WIDTH - SPACING.md * 2 - SPACING.sm) / NUM_COLUMNS;
 
 export default function App() {
+  // O SEGREDO 2: Cálculo da largura trazido para dentro do App
+  const { width } = useWindowDimensions();
+  const CARD_WIDTH = (width - (SPACING.md * 2) - SPACING.md) / NUM_COLUMNS;
+
   // ==================== ESTADOS ====================
   const [carrinhoVisivel, setCarrinhoVisivel] = useState(false);
   const [sucessoVisivel, setSucessoVisivel] = useState(false);
@@ -105,27 +107,26 @@ export default function App() {
 
   // ==================== RENDERIZAÇÃO ====================
   const renderProdutoCard = useCallback(
-    ({ item }: { item: Produto }) => (
-      <View style={[styles.cardContainer, { width: CARD_WIDTH }]}>
-        <ProdutoCard
-          produto={item}
-          onAdicionarAoCarrinho={handleAdicionarAoCarrinho}
-        />
-      </View>
-    ),
-    [handleAdicionarAoCarrinho]
-  );
+      ({ item }: { item: Produto }) => (
+        <View style={[styles.cardContainer, { width: CARD_WIDTH }]}>
+          <ProdutoCard
+            produto={item}
+            // Arrumamos o nome da prop e passamos o produto inteiro
+            onAdicionar={() => handleAdicionarAoCarrinho(item)} 
+          />
+        </View>
+      ),
+      [handleAdicionarAoCarrinho, CARD_WIDTH]
+    );
 
   const renderListHeader = () => (
     <>
-      {/* Header com título e carrinho */}
       <Header
         titulo="CHAPA QUENTE"
         quantidadeCarrinho={carrinho.quantidadeTotalItens}
         onCarrinhoPress={() => setCarrinhoVisivel(true)}
       />
 
-      {/* Barra de busca */}
       <SearchBar
         value={busca}
         onChangeText={handleBusca}
@@ -133,7 +134,6 @@ export default function App() {
         placeholder="Buscar lanches..."
       />
 
-      {/* Filtro de categorias */}
       <CategoryFilter
         categorias={categorias}
         ativa={filtros.categoria || 'Todos'}
@@ -153,15 +153,13 @@ export default function App() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar
-        barStyle="dark-content"
-        backgroundColor={COLORS.surface}
+        barStyle="light-content"
+        backgroundColor={COLORS.background}
         translucent={false}
       />
 
-      {/* Loading da primeira vez */}
       {carregando && <LoadingModal visivel mensagem="Carregando produtos..." />}
 
-      {/* Lista de Produtos */}
       <FlatList
         data={produtosFiltrados}
         renderItem={renderProdutoCard}
@@ -174,7 +172,6 @@ export default function App() {
         showsVerticalScrollIndicator={false}
       />
 
-      {/* Modal do Carrinho */}
       <CarrinhoModal
         visivel={carrinhoVisivel}
         itens={carrinho.itens}
@@ -186,7 +183,6 @@ export default function App() {
         carregando={carregandoPedido}
       />
 
-      {/* Modal de Sucesso */}
       <SucessoPedidoModal
         visivel={sucessoVisivel}
         numeroPedido={numeroPedido}

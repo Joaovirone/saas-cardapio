@@ -1,6 +1,6 @@
 import React from 'react';
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import { COLORS, SPACING, TYPOGRAPHY } from '../constants/theme';
+import { ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { COLORS, SPACING } from '../constants/theme';
 
 interface CategoryFilterProps {
   categorias: string[];
@@ -8,65 +8,62 @@ interface CategoryFilterProps {
   onSelect: (categoria: string) => void;
 }
 
-export const CategoryFilter: React.FC<CategoryFilterProps> = ({
-  categorias,
-  ativa,
-  onSelect,
-}) => {
+export function CategoryFilter({ categorias, ativa, onSelect }: CategoryFilterProps) {
   return (
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.container}
+      contentContainerStyle={styles.scrollContent}
+      style={styles.container}
     >
-      {categorias.map(categoria => (
+      <TouchableOpacity
+        style={[styles.button, ativa === 'Todos' && styles.buttonActive]}
+        onPress={() => onSelect('Todos')}
+        activeOpacity={0.7}
+      >
+        <Text style={[styles.text, ativa === 'Todos' && styles.textActive]}>Todos</Text>
+      </TouchableOpacity>
+
+      {categorias.map((cat) => (
         <TouchableOpacity
-          key={categoria}
-          style={[
-            styles.badge,
-            ativa === categoria && styles.badgeActive,
-          ]}
-          onPress={() => onSelect(categoria)}
+          key={cat}
+          style={[styles.button, ativa === cat && styles.buttonActive]}
+          onPress={() => onSelect(cat)}
           activeOpacity={0.7}
         >
-          <Text
-            style={[
-              styles.text,
-              ativa === categoria && styles.textActive,
-            ]}
-          >
-            {categoria}
-          </Text>
+          <Text style={[styles.text, ativa === cat && styles.textActive]}>{cat}</Text>
         </TouchableOpacity>
       ))}
     </ScrollView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
+    marginBottom: SPACING.md,
+  },
+  scrollContent: {
     paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.md,
     gap: SPACING.sm,
   },
-  badge: {
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.sm,
-    borderRadius: 20,
-    backgroundColor: COLORS.background,
-    borderWidth: 1.5,
-    borderColor: COLORS.border,
+  button: {
+    backgroundColor: COLORS.surface,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#333',
   },
-  badgeActive: {
+  buttonActive: {
     backgroundColor: COLORS.primary,
     borderColor: COLORS.primary,
   },
   text: {
-    fontSize: TYPOGRAPHY.sm,
-    fontWeight: '600',
     color: COLORS.textSecondary,
+    fontWeight: 'bold',
+    fontSize: 14,
   },
   textActive: {
-    color: COLORS.surface,
+    color: '#FFF',
   },
 });

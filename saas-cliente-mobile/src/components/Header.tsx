@@ -1,53 +1,42 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, TYPOGRAPHY } from '../constants/theme';
+import { COLORS, SPACING } from '../constants/theme';
 
 interface HeaderProps {
   titulo: string;
-  quantidadeCarrinho?: number;
-  onCarrinhoPress?: () => void;
-  onBackPress?: () => void;
-  showBack?: boolean;
+  quantidadeCarrinho: number;
+  onCarrinhoPress: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({
-  titulo,
-  quantidadeCarrinho = 0,
-  onCarrinhoPress,
-  onBackPress,
-  showBack = false,
-}) => {
+export function Header({ titulo, quantidadeCarrinho, onCarrinhoPress }: HeaderProps) {
+  // Separa o "CHAPA" do "QUENTE" para pintar o Quente de Laranja
+  const [primeiroNome, segundoNome] = titulo.split(' ');
+
   return (
     <View style={styles.container}>
-      <View style={styles.leftContainer}>
-        {showBack && (
-          <TouchableOpacity onPress={onBackPress} style={styles.backButton}>
-            <Ionicons name="chevron-back" size={28} color={COLORS.text} />
-          </TouchableOpacity>
-        )}
-        <Text style={styles.titulo}>{titulo}</Text>
+      <View>
+        <Text style={styles.subtitle}>BEM-VINDO AO</Text>
+        <Text style={styles.title}>
+          {primeiroNome} <Text style={styles.titleOrange}>{segundoNome}</Text>
+        </Text>
       </View>
 
-      {onCarrinhoPress && (
-        <TouchableOpacity
-          onPress={onCarrinhoPress}
-          style={styles.carrinhoButton}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="bag" size={24} color={COLORS.primary} />
-          {quantidadeCarrinho > 0 && (
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>
-                {quantidadeCarrinho > 9 ? '9+' : quantidadeCarrinho}
-              </Text>
-            </View>
-          )}
-        </TouchableOpacity>
-      )}
+      <TouchableOpacity 
+        style={styles.cartButton} 
+        onPress={onCarrinhoPress}
+        activeOpacity={0.7}
+      >
+        <Ionicons name="cart-outline" size={24} color={COLORS.text} />
+        {quantidadeCarrinho > 0 && (
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>{quantidadeCarrinho}</Text>
+          </View>
+        )}
+      </TouchableOpacity>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -55,42 +44,49 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.md,
-    backgroundColor: COLORS.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    paddingTop: SPACING.xl,
+    paddingBottom: SPACING.md,
   },
-  leftContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
+  subtitle: {
+    color: COLORS.textSecondary,
+    fontSize: 12,
+    letterSpacing: 1.5,
+    marginBottom: 2,
+    textTransform: 'uppercase',
   },
-  backButton: {
-    marginRight: SPACING.sm,
-  },
-  titulo: {
-    fontSize: TYPOGRAPHY.lg,
-    fontWeight: '700',
+  title: {
     color: COLORS.text,
+    fontSize: 24,
+    fontWeight: '900',
   },
-  carrinhoButton: {
+  titleOrange: {
+    color: COLORS.primary,
+  },
+  cartButton: {
+    backgroundColor: COLORS.surface,
+    padding: 12,
+    borderRadius: 12,
     position: 'relative',
-    padding: SPACING.sm,
+    borderWidth: 1,
+    borderColor: '#333',
   },
   badge: {
     position: 'absolute',
-    top: 0,
-    right: 0,
-    backgroundColor: COLORS.error,
+    top: -5,
+    right: -5,
+    backgroundColor: COLORS.primary,
     borderRadius: 10,
-    width: 20,
+    minWidth: 20,
     height: 20,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 4,
+    borderWidth: 2,
+    borderColor: COLORS.background,
   },
   badgeText: {
-    color: COLORS.surface,
-    fontSize: TYPOGRAPHY.xs,
-    fontWeight: '700',
+    color: '#FFF',
+    fontSize: 10,
+    fontWeight: 'bold',
   },
 });

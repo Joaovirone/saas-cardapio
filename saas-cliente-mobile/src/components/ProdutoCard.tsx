@@ -1,143 +1,99 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS, SPACING } from '../constants/theme';
 import { Produto } from '../types';
-import { formatarMoeda } from '../utils/formatting';
-import { COLORS, SPACING, TYPOGRAPHY } from '../constants/theme';
 
 interface ProdutoCardProps {
   produto: Produto;
-  onAdicionarAoCarrinho: (produto: Produto) => void;
+  onAdicionar: (id: string) => void;
 }
 
-export const ProdutoCard: React.FC<ProdutoCardProps> = ({
-  produto,
-  onAdicionarAoCarrinho,
-}) => {
-  const isIndisponivel = !produto.disponivel || !produto.ativo;
+export function ProdutoCard({ produto, onAdicionar }: ProdutoCardProps) {
+  // O SEGREDO: Calcula a largura dinamicamente DENTRO do componente
+  const { width } = useWindowDimensions();
+  const CARD_WIDTH = (width - (SPACING.md * 2) - SPACING.md) / 2;
 
   return (
-    <View style={[styles.container, isIndisponivel && styles.containerIndisponivel]}>
+    <View style={[styles.card, { width: CARD_WIDTH }]}>
+      {/* Imagem Placeholder - Caso a API falhe, não quebra o layout */}
       <View style={styles.imageContainer}>
-        <Image
-          source={{ uri: produto.imageUrl }}
-          style={styles.image}
-          defaultSource={{ uri: 'https://via.placeholder.com/300x200?text=Sem+Imagem' }}
+        <Image 
+          source={{ uri: produto.imageUrl || 'https://via.placeholder.com/300' }} 
+          style={styles.image} 
+          resizeMode="cover"
         />
-        {isIndisponivel && (
-          <View style={styles.indisponivelOverlay}>
-            <Text style={styles.indisponivelText}>Indisponível</Text>
-          </View>
-        )}
       </View>
-
+      
       <View style={styles.content}>
-        <Text style={styles.titulo} numberOfLines={2}>
-          {produto.nome}
-        </Text>
-        <Text style={styles.descricao} numberOfLines={2}>
-          {produto.descricao}
-        </Text>
-
+        <View>
+          <Text style={styles.title} numberOfLines={1}>{produto.nome}</Text>
+          <Text style={styles.description} numberOfLines={2}>{produto.descricao}</Text>
+        </View>
+        
         <View style={styles.footer}>
-          <Text style={styles.preco}>{formatarMoeda(produto.preco)}</Text>
-          <TouchableOpacity
-            style={[styles.btnAdicionar, isIndisponivel && styles.btnAdicionarDisabled]}
-            onPress={() => onAdicionarAoCarrinho(produto)}
-            disabled={isIndisponivel}
+          <Text style={styles.price}>R$ {produto.preco.toFixed(2).replace('.', ',')}</Text>
+          <TouchableOpacity 
+            style={styles.addButton} 
+            onPress={() => onAdicionar(produto.id)}
             activeOpacity={0.7}
           >
-            <Ionicons
-              name="add-circle"
-              size={24}
-              color={isIndisponivel ? COLORS.disabled : COLORS.primary}
-            />
+            <Ionicons name="add" size={20} color={COLORS.text} />
           </TouchableOpacity>
         </View>
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  card: {
     backgroundColor: COLORS.surface,
-    borderRadius: 12,
-    marginHorizontal: SPACING.sm,
-    marginVertical: SPACING.sm,
+    // A largura foi removida daqui e passada dinamicamente no inline style acima
+    borderRadius: 16,
     overflow: 'hidden',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
-  },
-  containerIndisponivel: {
-    opacity: 0.6,
+    borderWidth: 1,
+    borderColor: '#333',
   },
   imageContainer: {
-    position: 'relative',
     width: '100%',
-    height: 160,
-    backgroundColor: COLORS.background,
+    height: 120,
+    backgroundColor: '#2A2A2A',
   },
   image: {
     width: '100%',
     height: '100%',
-    resizeMode: 'cover',
-  },
-  indisponivelOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  indisponivelText: {
-    color: '#FFF',
-    fontSize: TYPOGRAPHY.sm,
-    fontWeight: '700',
   },
   content: {
-    padding: SPACING.md,
+    padding: SPACING.sm,
     flex: 1,
     justifyContent: 'space-between',
   },
-  titulo: {
-    fontSize: TYPOGRAPHY.md,
-    fontWeight: '700',
+  title: {
     color: COLORS.text,
-    marginBottom: SPACING.xs,
+    fontWeight: 'bold',
+    fontSize: 14,
+    marginBottom: 4,
   },
-  descricao: {
-    fontSize: TYPOGRAPHY.sm,
+  description: {
     color: COLORS.textSecondary,
-    marginBottom: SPACING.md,
-    lineHeight: 18,
+    fontSize: 11,
+    lineHeight: 16,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: 12,
   },
-  preco: {
-    fontSize: TYPOGRAPHY.lg,
-    fontWeight: '700',
+  price: {
     color: COLORS.primary,
+    fontWeight: '900',
+    fontSize: 15,
   },
-  btnAdicionar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 107, 29, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  btnAdicionarDisabled: {
-    opacity: 0.5,
+  addButton: {
+    backgroundColor: COLORS.primary,
+    padding: 6,
+    borderRadius: 8,
   },
 });

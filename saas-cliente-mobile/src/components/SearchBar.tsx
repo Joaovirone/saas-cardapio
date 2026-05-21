@@ -1,30 +1,25 @@
 import React from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, TYPOGRAPHY } from '../constants/theme';
+import { COLORS, SPACING } from '../constants/theme';
 
 interface SearchBarProps {
-  placeholder?: string;
-  onChangeText: (text: string) => void;
   value: string;
-  onClear?: () => void;
+  onChangeText: (text: string) => void;
+  onClear: () => void;
+  placeholder?: string;
 }
 
-export const SearchBar: React.FC<SearchBarProps> = ({
-  placeholder = 'Buscar produtos...',
-  onChangeText,
-  value,
-  onClear,
-}) => {
+export function SearchBar({ value, onChangeText, onClear, placeholder }: SearchBarProps) {
   return (
     <View style={styles.container}>
       <Ionicons name="search" size={20} color={COLORS.textSecondary} style={styles.icon} />
       <TextInput
         style={styles.input}
+        value={value}
+        onChangeText={onChangeText}
         placeholder={placeholder}
         placeholderTextColor={COLORS.textSecondary}
-        onChangeText={onChangeText}
-        value={value}
         selectionColor={COLORS.primary}
       />
       {value.length > 0 && (
@@ -34,30 +29,30 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       )}
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.surface,
-    borderRadius: 8,
-    paddingHorizontal: SPACING.md,
     marginHorizontal: SPACING.md,
-    marginVertical: SPACING.md,
+    borderRadius: 16,
+    paddingHorizontal: SPACING.md,
+    height: 50,
+    marginBottom: SPACING.md,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: '#333',
   },
   icon: {
     marginRight: SPACING.sm,
   },
   input: {
     flex: 1,
-    paddingVertical: SPACING.md,
-    fontSize: TYPOGRAPHY.md,
     color: COLORS.text,
+    fontSize: 15,
   },
   clearButton: {
-    padding: SPACING.sm,
+    padding: SPACING.xs,
   },
 });
