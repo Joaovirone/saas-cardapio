@@ -1,7 +1,7 @@
 package com.saas_cardapio.app.service;
 
 import java.util.List;
-import java.util.stream.*;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.saas_cardapio.app.dto.PedidoRequestDto;
@@ -10,6 +10,7 @@ import com.saas_cardapio.app.dto.mapper.PedidoMapper;
 import com.saas_cardapio.app.entity.ItemPedido;
 import com.saas_cardapio.app.entity.Pedido;
 import com.saas_cardapio.app.repository.PedidoRepository;
+import com.saas_cardapio.app.repository.ProdutoRepository; // <-- Nova dependência
 
 import lombok.AllArgsConstructor;
 
@@ -19,6 +20,7 @@ public class PedidoService {
     
     private final PedidoMapper pedidoMapper;
     private final PedidoRepository pedidoRepository;
+    private final ProdutoRepository produtoRepository; // <-- Injetado aqui
 
     public PedidoResponseDto processarPedido(PedidoRequestDto requestDto) {
         
@@ -27,34 +29,31 @@ public class PedidoService {
         }
         if (requestDto.getItens() == null || requestDto.getItens().isEmpty()) {
             throw new IllegalArgumentException("O pedido precisa ter pelo menos um item do cardápio.");
-       }
+        }
     
-       Pedido novoPedido = pedidoMapper.toPedido(requestDto);
+        Pedido novoPedido = pedidoMapper.toPedido(requestDto);
 
-       novoPedido.setStatus("RECEBIDO");
-       novoPedido.setDataCriacao(java.time.Instant.now().toString());
+        novoPedido.setStatus("RECEBIDO");
+        novoPedido.setDataCriacao(java.time.Instant.now().toString());
 
-
-       double totalCalculado = 0.0;
+        double totalCalculado = 0.0;
         for (ItemPedido item : novoPedido.getItens()) {
             int quantidade = (item.getQuantidade() != null && item.getQuantidade() > 0) ? item.getQuantidade() : 1;
             
-            double precoReal Seguro = buscarPrecoRealNoBancoDeDados(item.getNome());
+            // AGORA SIM: Vai buscar o preço no repositório oficial, sem mocks no código principal!
+            double precoRealSeguro = produtoRepository.buscarPrecoPorNome(item.getNome());
 
             item.setPreco(precoRealSeguro);
-
             totalCalculado += precoRealSeguro * quantidade;
         }
         novoPedido.setValorTotal(totalCalculado);
 
         pedidoRepository.salvar(novoPedido);
     
-    
         PedidoResponseDto response = pedidoMapper.toPedidoResponse(novoPedido);
         response.setMensagem("Pedido processado com sucesso!");
         
         return response;
-    
     }
 
     public List<PedidoResponseDto> listarPedidos() {
@@ -65,11 +64,9 @@ public class PedidoService {
     }
 
     public void atualizarStatusPedido(String pedidoId, String novoStatus) {
-        
         if(novoStatus == null || novoStatus.isBlank()) {
             throw new IllegalArgumentException("O novo status não pode ser vazio.");
         }
         pedidoRepository.atualizarStatusPedido(pedidoId, novoStatus.toUpperCase());
     }
-
 }
