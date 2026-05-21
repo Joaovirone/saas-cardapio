@@ -1,5 +1,7 @@
 package com.saas_cardapio.app.service;
 
+import java.util.List;
+import java.util.stream.*;
 import org.springframework.stereotype.Service;
 
 import com.saas_cardapio.app.dto.PedidoRequestDto;
@@ -29,11 +31,19 @@ public class PedidoService {
     
        Pedido novoPedido = pedidoMapper.toPedido(requestDto);
 
+       novoPedido.setStatus("RECEBIDO");
+       novoPedido.setDataCriacao(java.time.Instant.now().toString());
+
 
        double totalCalculado = 0.0;
         for (ItemPedido item : novoPedido.getItens()) {
             int quantidade = (item.getQuantidade() != null && item.getQuantidade() > 0) ? item.getQuantidade() : 1;
-            totalCalculado += (item.getPreco() * quantidade);
+            
+            double precoReal Seguro = buscarPrecoRealNoBancoDeDados(item.getNome());
+
+            item.setPreco(precoRealSeguro);
+
+            totalCalculado += precoRealSeguro * quantidade;
         }
         novoPedido.setValorTotal(totalCalculado);
 
@@ -45,6 +55,21 @@ public class PedidoService {
         
         return response;
     
+    }
+
+    public List<PedidoResponseDto> listarPedidos() {
+        List<Pedido> pedidosNoBanco = pedidoRepository.listarPedidosAtivos();
+        return pedidosNoBanco.stream()
+                .map(pedidoMapper::toPedidoResponse)
+                .collect(Collectors.toList());
+    }
+
+    public void atualizarStatusPedido(String pedidoId, String novoStatus) {
+        
+        if(novoStatus == null || novoStatus.isBlank()) {
+            throw new IllegalArgumentException("O novo status não pode ser vazio.");
+        }
+        pedidoRepository.atualizarStatusPedido(pedidoId, novoStatus.toUpperCase());
     }
 
 }

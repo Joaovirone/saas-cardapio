@@ -5,8 +5,12 @@ import com.saas_cardapio.app.entity.Pedido;
 import org.springframework.beans.factory.annotation.Value; // Import crucial do Spring
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.AttributeAction;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
+import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
+import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest;
 
 import java.util.HashMap;
 import java.util.List;
@@ -65,4 +69,46 @@ public class PedidoRepository {
         itemMap.put("quantidade", AttributeValue.builder().n(String.valueOf(itemPedido.getQuantidade())).build());
         return AttributeValue.builder().m(itemMap).build();
     }
+
+    public List<Pedido> listarPedidosAtivos(){
+
+        ScanRequest scanRequest = ScanRequest.builder()
+                .tableName(tableName)
+                .build();
+        
+                ScanResponse scanResponse = dynamoDbClient.scan(scanRequest);
+
+                return mapearParaLisaDePedidos(scanResponse.items());
+    }
+
+
+    public void atualizarStatusPedidos(String pedidoId, String novoStatus){
+
+        Map<String, AttributeValue> chave = new HashMap<>();
+        chave.put("id", AttributeValue.builder().s(pedidoId).build());
+
+        Map<String, AttributeValue> atualizacoes = new HashMap<>();
+        atualizacoes.put("status", AttributeValue.builder()
+                        .value(AttributeValue.builder().s(novoStatus).build())
+                        .action(AttributeAction.PUT)
+                        .build());
+
+
+        UpdateItemRequest updateItemRequest = UpdateItemRequest.builder()
+                .tableName(tableName)
+                .key(chave)
+                .attributeUpdates(atualizacoes)
+                .build();   
+
+
+        dynamoDbClient.updateItem(updateItemRequest);
+        System.out.println("Status do pedido " + pedidoId + " atualizado para " + novoStatus);
+    }
+
+    
+
+
+
 }
+
+
