@@ -4,14 +4,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING } from '../constants/theme';
 import { Produto } from '../types';
 
-// Mock de ingredientes. No futuro, isso pode vir do Backend dentro do objeto Produto!
-const INGREDIENTES_EXTRAS = [
-  { id: 'ext1', nome: 'Bacon Artesanal', preco: 4.50 },
-  { id: 'ext2', nome: 'Cheddar Cremoso', preco: 3.50 },
-  { id: 'ext3', nome: 'Hambúrguer Extra', preco: 9.90 },
-  { id: 'ext4', nome: 'Cebola Caramelizada', preco: 2.50 },
-];
-
 interface ProdutoDetalheModalProps {
   produto: Produto | null;
   visivel: boolean;
@@ -22,6 +14,41 @@ interface ProdutoDetalheModalProps {
 export function ProdutoDetalheModal({ produto, visivel, onFechar, onAdicionarAoCarrinho }: ProdutoDetalheModalProps) {
   const [quantidade, setQuantidade] = useState(1);
   const [extrasSelecionados, setExtrasSelecionados] = useState<string[]>([]);
+
+  // ==================== O SEGREDO: EXTRAS DINÂMICOS ====================
+  // Uma função que lê a categoria do produto e retorna a lista certa de ingredientes
+  const obterExtrasDoProduto = () => {
+    if (!produto || !produto.categoria) return [];
+    
+    const categoria = produto.categoria.toLowerCase();
+
+    if (categoria.includes('lanche') || categoria.includes('combo') || categoria.includes('burger')) {
+      return [
+        { id: 'ext1', nome: 'Bacon Artesanal', preco: 4.50 },
+        { id: 'ext2', nome: 'Cheddar Cremoso', preco: 3.50 },
+        { id: 'ext3', nome: 'Hambúrguer Extra', preco: 9.90 },
+        { id: 'ext4', nome: 'Cebola Caramelizada', preco: 2.50 },
+      ];
+    }
+    
+    if (categoria.includes('bebida')) {
+      return [
+        { id: 'beb1', nome: 'Gelo e Limão', preco: 0.00 },
+      ];
+    }
+
+    if (categoria.includes('sobremesa')) {
+      return [
+        { id: 'sob1', nome: 'Calda de Chocolate Extra', preco: 2.00 },
+      ];
+    }
+
+    // Se for qualquer outra categoria que não tem extra, retorna vazio
+    return [];
+  };
+
+  const ingredientesDesteProduto = obterExtrasDoProduto();
+  // =====================================================================
 
   // Reseta os estados toda vez que abrir um lanche novo
   useEffect(() => {
@@ -40,26 +67,24 @@ export function ProdutoDetalheModal({ produto, visivel, onFechar, onAdicionarAoC
   };
 
   // Calcula: (Preço Base + Soma dos Extras) * Quantidade
-  const valorExtras = INGREDIENTES_EXTRAS
+  const valorExtras = ingredientesDesteProduto
     .filter(ext => extrasSelecionados.includes(ext.id))
     .reduce((sum, ext) => sum + ext.preco, 0);
     
   const precoTotal = (produto.preco + valorExtras) * quantidade;
 
   const handleConfirmar = () => {
-    // Monta o texto das observações para a cozinha ler
-    const nomesExtras = INGREDIENTES_EXTRAS
+    const nomesExtras = ingredientesDesteProduto
       .filter(ext => extrasSelecionados.includes(ext.id))
       .map(ext => ext.nome)
       .join(', ');
       
     const obsCozinha = nomesExtras.length > 0 ? `Adicionais: ${nomesExtras}` : '';
 
-    // Cria um "clone" do produto com o preço atualizado para o carrinho somar certo
     const produtoPersonalizado = {
       ...produto,
       preco: produto.preco + valorExtras,
-      nome: extrasSelecionados.length > 0 ? `${produto.nome} (Turbinado)` : produto.nome
+      nome: extrasSelecionados.length > 0 ? `${produto.nome} (Personalizado)` : produto.nome
     };
 
     onAdicionarAoCarrinho(produtoPersonalizado, quantidade, obsCozinha);
@@ -81,33 +106,40 @@ export function ProdutoDetalheModal({ produto, visivel, onFechar, onAdicionarAoC
               <Text style={styles.title}>{produto.nome}</Text>
               <Text style={styles.desc}>{produto.descricao}</Text>
 
-              <Text style={styles.sectionTitle}>Turbine seu pedido</Text>
-              
-              {INGREDIENTES_EXTRAS.map(extra => {
-                const isSelected = extrasSelecionados.includes(extra.id);
-                return (
-                  <TouchableOpacity 
-                    key={extra.id} 
-                    style={[styles.extraRow, isSelected && styles.extraRowSelected]}
-                    onPress={() => toggleExtra(extra.id)}
-                    activeOpacity={0.7}
-                  >
-                    <View style={styles.extraInfo}>
-                      <Ionicons 
-                        name={isSelected ? "checkbox" : "square-outline"} 
-                        size={22} 
-                        color={isSelected ? COLORS.primary : COLORS.textSecondary} 
-                      />
-                      <Text style={styles.extraName}>{extra.nome}</Text>
-                    </View>
-                    <Text style={styles.extraPrice}>+ R$ {extra.preco.toFixed(2).replace('.', ',')}</Text>
-                  </TouchableOpacity>
-                );
-              })}
+              {/* RENDERIZAÇÃO CONDICIONAL: Só mostra a seção se tiver ingredientes na lista */}
+              {ingredientesDesteProduto.length > 0 && (
+                <>
+                  <Text style={styles.sectionTitle}>Turbine seu pedido</Text>
+                  
+                  {ingredientesDesteProduto.map(extra => {
+                    const isSelected = extrasSelecionados.includes(extra.id);
+                    return (
+                      <TouchableOpacity 
+                        key={extra.id} 
+                        style={[styles.extraRow, isSelected && styles.extraRowSelected]}
+                        onPress={() => toggleExtra(extra.id)}
+                        activeOpacity={0.7}
+                      >
+                        <View style={styles.extraInfo}>
+                          <Ionicons 
+                            name={isSelected ? "checkbox" : "square-outline"} 
+                            size={22} 
+                            color={isSelected ? COLORS.primary : COLORS.textSecondary} 
+                          />
+                          <Text style={styles.extraName}>{extra.nome}</Text>
+                        </View>
+                        <Text style={styles.extraPrice}>
+                          {extra.preco > 0 ? `+ R$ ${extra.preco.toFixed(2).replace('.', ',')}` : 'Grátis'}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </>
+              )}
             </View>
           </ScrollView>
 
-          {/* Rodapé Fixo de Quantidade e Adicionar */}
+          {/* Rodapé Fixo */}
           <View style={styles.footer}>
             <View style={styles.qtdContainer}>
               <TouchableOpacity onPress={() => setQuantidade(Math.max(1, quantidade - 1))} style={styles.qtdBtn}>

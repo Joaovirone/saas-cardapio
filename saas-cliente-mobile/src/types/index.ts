@@ -65,3 +65,25 @@ export interface Notificacao {
   mensagem: string;
   duracao?: number;
 }
+
+// Adicione esta interface
+export interface Adicional {
+  id: string;
+  nome: string;
+  preco: number;
+}
+
+// Atualize a interface Produto para incluir a lista (opcional usando o "?")
+export interface Produto {
+  id: string;
+  nome: string;
+  descricao: string;
+  preco: number;
+  categoria: string;
+  imageUrl?: string;
+  disponivel: boolean;
+  ativo: boolean;
+  adicionais?: Adicional[]; // <--- Adicione esta linha!
+}
+
+// ... resto do arquivo (PedidoRequest, etc) continua igual

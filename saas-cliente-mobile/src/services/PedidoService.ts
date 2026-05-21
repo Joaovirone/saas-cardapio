@@ -4,12 +4,10 @@ import { Produto, PedidoRequest, PedidoResponse } from '../types';
 class PedidoServiceClass {
   async fetchProdutos(): Promise<Produto[]> {
     try {
-      // Tenta buscar da API real
       const response = await api.get<Produto[]>('/produtos');
       return response;
     } catch (error) {
       console.warn('Erro ao buscar produtos da API, usando dados locais:', error);
-      // Fallback com dados locais para desenvolvimento
       return this.getProdutosLocais();
     }
   }
@@ -33,6 +31,12 @@ class PedidoServiceClass {
         imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500&q=80',
         disponivel: true,
         ativo: true,
+        // Adicionais focados em carne e bacon
+        adicionais: [
+          { id: 'add_bacon', nome: 'Bacon Artesanal', preco: 4.50 },
+          { id: 'add_cheddar', nome: 'Cheddar Cremoso', preco: 3.50 },
+          { id: 'add_carne', nome: 'Hambúrguer Extra', preco: 9.90 },
+        ]
       },
       {
         id: '2',
@@ -43,6 +47,12 @@ class PedidoServiceClass {
         imageUrl: 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=500&q=80',
         disponivel: true,
         ativo: true,
+        // Adicionais focados no clássico
+        adicionais: [
+          { id: 'add_bacon', nome: 'Bacon Artesanal', preco: 4.50 },
+          { id: 'add_cebola', nome: 'Cebola Caramelizada', preco: 2.50 },
+          { id: 'add_ovo', nome: 'Ovo Frito', preco: 2.00 },
+        ]
       },
       {
         id: '3',
@@ -53,6 +63,11 @@ class PedidoServiceClass {
         imageUrl: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=500&q=80',
         disponivel: true,
         ativo: true,
+        // Bebida não tem bacon, tem gelo!
+        adicionais: [
+          { id: 'add_gelo_limao', nome: 'Gelo e Limão', preco: 0.00 },
+          { id: 'add_copo', nome: 'Copo Descartável', preco: 0.50 },
+        ]
       },
       {
         id: '4',
@@ -63,6 +78,10 @@ class PedidoServiceClass {
         imageUrl: 'https://images.unsplash.com/photo-1606755962773-d324e0a13086?auto=format&fit=crop&w=500&q=80',
         disponivel: true,
         ativo: true,
+        adicionais: [
+          { id: 'add_cheddar', nome: 'Cheddar Cremoso', preco: 3.50 },
+          { id: 'add_barbecue', nome: 'Molho Barbecue Extra', preco: 2.00 },
+        ]
       },
       {
         id: '5',
@@ -73,26 +92,38 @@ class PedidoServiceClass {
         imageUrl: 'https://images.unsplash.com/photo-1585238341710-4913d3ca7229?auto=format&fit=crop&w=500&q=80',
         disponivel: true,
         ativo: true,
+        adicionais: [
+          { id: 'add_batata_bacon', nome: 'Bacon na Batata', preco: 5.00 },
+          { id: 'add_batata_cheddar', nome: 'Cheddar na Batata', preco: 4.50 },
+        ]
       },
       {
         id: '6',
-        nome: 'Sundae de Chocolate',
-        descricao: 'Sorvete de baunilha com cobertura de chocolate quente e granulado.',
+        nome: 'Sorvete',
+        descricao: 'Sorvete de napolitano, chocolate, morango e baunilha.',
         preco: 12.50,
         categoria: 'Sobremesas',
         imageUrl: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=500&q=80',
         disponivel: true,
         ativo: true,
+        adicionais: [
+          { id: 'add_calda', nome: 'Calda Extra de Chocolate', preco: 2.50 },
+          { id: 'add_morango', nome: 'Pedaços de Morango', preco: 3.00 },
+        ]
       },
       {
         id: '7',
         nome: 'Suco Natural',
-        descricao: 'Suco de laranja 100% natural, recém espremido.',
+        descricao: 'Sucos de laranja, goiaba, limão, acerola.',
         preco: 8.50,
         categoria: 'Bebidas',
         imageUrl: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=500&q=80',
         disponivel: true,
         ativo: true,
+        adicionais: [
+          { id: 'add_gelo', nome: 'Gelo Extra', preco: 0.00 },
+          { id: 'add_acucar', nome: 'Chorinho de Açúcar', preco: 0.00 },
+        ]
       },
     ];
   }
