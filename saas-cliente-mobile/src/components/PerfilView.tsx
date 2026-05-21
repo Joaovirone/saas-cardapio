@@ -12,46 +12,46 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING } from '../constants/theme';
+import { useUser } from '../context/UserContext'; // <-- Importamos o contexto global
 
 export function PerfilView() {
-  // ==================== ESTADOS DE NAVEGAÇÃO ====================
-  const [autenticado, setAutenticado] = useState(false);
   const [isRegistrando, setIsRegistrando] = useState(false);
 
-  // ==================== ESTADOS DO FORMULÁRIO ====================
-  const [nome, setNome] = useState('');
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-  const [telefone, setTelefone] = useState('');
-  const [endereco, setEndereco] = useState('');
-  const [cep, setCep] = useState('');
+  // Consumindo os estados e funções globais
+  const {
+    autenticado, setAutenticado,
+    nome, setNome,
+    email, setEmail,
+    senha, setSenha, // Se o seu tipo global não tiver senha, use o local apenas para o login
+    telefone, setTelefone,
+    endereco, setEndereco,
+    cep, setCep
+  } = useUser() as any; 
 
-  // ==================== HANDLERS ====================
+  const [localSenha, setLocalSenha] = useState('');
+
   const handleEntrar = () => {
-    if (!email || !senha) {
+    if (!email || !localSenha) {
       Alert.alert('Ops!', 'Preencha e-mail e senha para entrar.');
       return;
     }
-    // Simula o login na API
     setAutenticado(true);
   };
 
   const handleRegistrar = () => {
-    if (!nome || !email || !senha || !telefone || !endereco) {
+    if (!nome || !email || !localSenha || !telefone || !endereco) {
       Alert.alert('Ops!', 'Preencha todos os campos obrigatórios.');
       return;
     }
-    // Simula o cadastro na API e já loga o usuário
     Alert.alert('Sucesso!', 'Conta criada com sucesso.');
     setAutenticado(true);
-    setIsRegistrando(false); // Reseta a tela para não voltar pro cadastro ao deslogar
+    setIsRegistrando(false);
   };
 
   const handleSalvar = () => {
-    Alert.alert('Sucesso', 'Dados atualizados para as próximas entregas!');
+    Alert.alert('Sucesso', 'Dados atualizados globalmente!');
   };
 
-  // ==================== RENDERIZAÇÃO CONDICIONAL ====================
   const renderCabecalho = () => {
     if (autenticado) {
       return { icone: 'person-circle', titulo: 'Meu Perfil', subtitulo: 'Configure seus dados para agilizar a entrega' };
@@ -66,10 +66,8 @@ export function PerfilView() {
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
-      {/* ScrollView permite que a tela role quando o teclado abrir */}
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         
-        {/* CABEÇALHO DINÂMICO */}
         <View style={styles.header}>
           <Ionicons name={info.icone as any} size={80} color={COLORS.primary} />
           <Text style={styles.title}>{info.titulo}</Text>
@@ -78,17 +76,16 @@ export function PerfilView() {
 
         <View style={styles.form}>
           
-          {/* TELA DO USUÁRIO LOGADO */}
           {autenticado && (
             <>
               <Text style={styles.label}>Nome Completo</Text>
-              <TextInput style={styles.input} value={nome || 'João Vitor'} onChangeText={setNome} placeholderTextColor={COLORS.textSecondary} />
+              <TextInput style={styles.input} value={nome} onChangeText={setNome} placeholder="Seu nome" placeholderTextColor={COLORS.textSecondary} />
 
               <Text style={styles.label}>WhatsApp / Telefone</Text>
-              <TextInput style={styles.input} value={telefone || '(79) 99100-0000'} onChangeText={setTelefone} keyboardType="phone-pad" placeholderTextColor={COLORS.textSecondary}/>
+              <TextInput style={styles.input} value={telefone} onChangeText={setTelefone} keyboardType="phone-pad" placeholder="(79) 90000-0000" placeholderTextColor={COLORS.textSecondary}/>
 
               <Text style={styles.label}>Endereço de Entrega Principal</Text>
-              <TextInput style={styles.input} value={endereco || 'Rua das Flores, 123'} onChangeText={setEndereco} placeholderTextColor={COLORS.textSecondary} />
+              <TextInput style={styles.input} value={endereco} onChangeText={setEndereco} placeholder="Rua, Número, Bairro" placeholderTextColor={COLORS.textSecondary} />
 
               <TouchableOpacity style={styles.primaryBtn} onPress={handleSalvar} activeOpacity={0.8}>
                 <Text style={styles.primaryBtnText}>Salvar Alterações</Text>
@@ -100,14 +97,13 @@ export function PerfilView() {
             </>
           )}
 
-          {/* TELA DE LOGIN */}
           {!autenticado && !isRegistrando && (
             <>
               <Text style={styles.label}>E-mail</Text>
               <TextInput style={styles.input} placeholder="seu@email.com" placeholderTextColor={COLORS.textSecondary} keyboardType="email-address" autoCapitalize="none" value={email} onChangeText={setEmail} />
 
               <Text style={styles.label}>Senha</Text>
-              <TextInput style={styles.input} placeholder="••••••••" placeholderTextColor={COLORS.textSecondary} secureTextEntry value={senha} onChangeText={setSenha} />
+              <TextInput style={styles.input} placeholder="••••••••" placeholderTextColor={COLORS.textSecondary} secureTextEntry value={localSenha} onChangeText={setLocalSenha} />
 
               <TouchableOpacity style={styles.primaryBtn} onPress={handleEntrar} activeOpacity={0.8}>
                 <Text style={styles.primaryBtnText}>Entrar</Text>
@@ -119,7 +115,6 @@ export function PerfilView() {
             </>
           )}
 
-          {/* TELA DE CADASTRO (REGISTRO) */}
           {!autenticado && isRegistrando && (
             <>
               <Text style={styles.label}>Nome Completo</Text>
@@ -129,7 +124,7 @@ export function PerfilView() {
               <TextInput style={styles.input} placeholder="seu@email.com" placeholderTextColor={COLORS.textSecondary} keyboardType="email-address" autoCapitalize="none" value={email} onChangeText={setEmail} />
 
               <Text style={styles.label}>Senha</Text>
-              <TextInput style={styles.input} placeholder="Crie uma senha segura" placeholderTextColor={COLORS.textSecondary} secureTextEntry value={senha} onChangeText={setSenha} />
+              <TextInput style={styles.input} placeholder="Crie uma senha segura" placeholderTextColor={COLORS.textSecondary} secureTextEntry value={localSenha} onChangeText={setLocalSenha} />
 
               <Text style={styles.label}>WhatsApp / Telefone</Text>
               <TextInput style={styles.input} placeholder="(79) 90000-0000" placeholderTextColor={COLORS.textSecondary} keyboardType="phone-pad" value={telefone} onChangeText={setTelefone} />
@@ -158,7 +153,7 @@ export function PerfilView() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
-  scrollContent: { paddingBottom: 40 }, // Dá espaço para o scroll terminar confortavelmente
+  scrollContent: { paddingBottom: 40 },
   header: { alignItems: 'center', paddingTop: 40, paddingBottom: 30, borderBottomWidth: 1, borderColor: '#222' },
   title: { color: COLORS.text, fontSize: 24, fontWeight: 'bold', marginTop: 16 },
   subtitle: { color: COLORS.textSecondary, fontSize: 13, marginTop: 4, textAlign: 'center', paddingHorizontal: 40 },

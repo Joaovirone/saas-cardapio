@@ -22,6 +22,10 @@ import { LoadingModal } from './src/components/LoadingModal';
 import { BottomNavBar } from './src/components/BottomNavBar';
 import { ProdutoDetalheModal } from './src/components/ProdutoDetalheModal';
 import { PerfilView } from './src/components/PerfilView';
+import { MeusPedidosView } from './src/components/MeusPedidosView';
+
+// Importações do Estado Global
+import { UserProvider, useUser } from './src/context/UserContext';
 
 import { useCarrinho } from './src/hooks/useCarrinho';
 import { useProdutos } from './src/hooks/useProdutos';
@@ -32,13 +36,13 @@ import { Produto } from './src/types';
 
 const NUM_COLUMNS = 2;
 
-export default function App() {
+function MainAppContent() {
   const { width } = useWindowDimensions();
-  
-  // O SEGREDO DA RESPONSIVIDADE: 
-  // Se for Web, a largura útil é no máximo 480. Se for celular, é a tela toda.
   const appWidth = Platform.OS === 'web' ? Math.min(width, 480) : width;
   const CARD_WIDTH = (appWidth - (SPACING.md * 2) - SPACING.md) / NUM_COLUMNS;
+
+  // Lendo os dados de entrega globais do cliente
+  const { nome, endereco, telefone } = useUser();
 
   // ==================== ESTADOS ====================
   const [abaAtiva, setAbaAtiva] = useState('Cardapio');
@@ -65,24 +69,26 @@ export default function App() {
     setFiltros(prev => ({ ...prev, categoria: novaCategoria }));
   }, [setFiltros]);
 
-  const handleConfirmarPedido = useCallback(async (observacoes: string) => {
-    if (carrinho.itens.length === 0) {
-      Alert.alert('Carrinho vazio', 'Adicione itens ao carrinho antes de confirmar!');
-      return;
-    }
-
+    const handleConfirmarPedido = useCallback(async (dadosCheckout: string, enderecoFinal: string) => {
+    
     setCarregandoPedido(true);
     try {
       const pedidoRequest = {
+        cliente: {
+          nome: nome || 'Visitante',
+          telefone: telefone || 'Não informado',
+          // O Endereço agora vem direto do modal validado!
+          endereco: enderecoFinal 
+        },
         items: carrinho.itens.map(item => ({
           produtoId: item.produto.id,
           quantidade: item.quantidade,
           observacoes: item.observacoes,
         })),
-        observacoesGerais: observacoes,
+        detalhesEntregaEPagamento: dadosCheckout,
       };
 
-      const resposta = await PedidoService.criarPedido(pedidoRequest);
+      const resposta = await PedidoService.criarPedido(pedidoRequest as any);
 
       setNumeroPedido(resposta.id);
       setSucessoVisivel(true);
@@ -94,7 +100,7 @@ export default function App() {
     } finally {
       setCarregandoPedido(false);
     }
-  }, [carrinho]);
+  }, [carrinho, nome, telefone]);
 
   // ==================== RENDERIZAÇÃO ====================
   const renderProdutoCard = useCallback(
@@ -111,11 +117,7 @@ export default function App() {
 
   const renderListHeader = () => (
     <>
-      <Header
-        titulo="CHAPA QUENTE"
-        quantidadeCarrinho={carrinho.quantidadeTotalItens}
-        onCarrinhoPress={() => setCarrinhoVisivel(true)}
-      />
+      <Header titulo="VIRONE LANCHES" quantidadeCarrinho={carrinho.quantidadeTotalItens} onCarrinhoPress={() => setCarrinhoVisivel(true)} />
       <SearchBar value={busca} onChangeText={handleBusca} onClear={() => handleBusca('')} placeholder="Buscar lanches..." />
       <CategoryFilter categorias={categorias} ativa={filtros.categoria || 'Todos'} onSelect={handleFiltrarCategoria} />
     </>
@@ -129,14 +131,14 @@ export default function App() {
   );
 
   return (
-    // CAIXA VIRTUAL PARA A WEB (Deixa o fundo do monitor preto e centraliza o app)
     <View style={styles.webWrapper}>
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor={COLORS.background} translucent={false} />
 
         {carregando && <LoadingModal visivel mensagem="Carregando produtos..." />}
 
-        {abaAtiva === 'Cardapio' ? (
+{/* RENDERIZAÇÃO CONDICIONAL DAS ABAS */}
+        {abaAtiva === 'Cardapio' && (
           <FlatList
             data={produtosFiltrados}
             renderItem={renderProdutoCard}
@@ -148,25 +150,20 @@ export default function App() {
             contentContainerStyle={styles.flatListContent}
             showsVerticalScrollIndicator={false}
           />
-        ) : (
-          <PerfilView />
         )}
 
-        {/* BARRA INFERIOR FIXA */}
-        <BottomNavBar 
-          abaAtiva={abaAtiva}
-          setAbaAtiva={setAbaAtiva}
-          quantidadeCarrinho={carrinho.quantidadeTotalItens}
-          onAbrirCarrinho={() => setCarrinhoVisivel(true)}
-        />
+        {abaAtiva === 'Pedidos' && <MeusPedidosView />}
+        
+        {abaAtiva === 'Perfil' && <PerfilView />}
 
-        {/* MODAL: DETALHES DO PRODUTO (INGREDIENTES) */}
+        <BottomNavBar abaAtiva={abaAtiva} setAbaAtiva={setAbaAtiva} quantidadeCarrinho={carrinho.quantidadeTotalItens} onAbrirCarrinho={() => setCarrinhoVisivel(true)} />
+
         <ProdutoDetalheModal
           produto={produtoSelecionado}
           visivel={!!produtoSelecionado}
           onFechar={() => setProdutoSelecionado(null)}
           onAdicionarAoCarrinho={(produto, qtd, obs) => {
-            carrinho.adicionarItem(produto, qtd);
+            carrinho.adicionarItem(produto, qtd, obs);
             Alert.alert('Sucesso!', `${qtd}x adicionado(s) ao carrinho.`);
           }}
         />
@@ -188,42 +185,21 @@ export default function App() {
   );
 }
 
+// O EXPORT PRINCIPAL ENVOLVIDO NO PROVIDER GLOBAL
+export default function App() {
+  return (
+    <UserProvider>
+      <MainAppContent />
+    </UserProvider>
+  );
+}
+
 const styles = StyleSheet.create({
-  // === A MÁGICA PARA A WEB FUNCIONAR AQUI ===
-  webWrapper: {
-    flex: 1,
-    backgroundColor: '#000', // Fundo escuro fora do escopo do celular
-    alignItems: 'center',    // Centraliza o app no monitor
-  },
-  container: {
-    flex: 1,
-    width: '100%',
-    maxWidth: 480, // Largura máxima de um smartphone
-    backgroundColor: COLORS.background,
-    position: 'relative',
-  },
-  // ==========================================
-  
-  flatListContent: {
-    paddingBottom: 20, 
-  },
-  columnWrapper: {
-    paddingHorizontal: SPACING.md,
-    justifyContent: 'space-between',
-    gap: SPACING.sm,
-  },
-  cardContainer: {
-    marginBottom: SPACING.sm,
-  },
-  emptyContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 100,
-  },
-  emptyText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: COLORS.text,
-    marginTop: SPACING.md,
-  },
+  webWrapper: { flex: 1, backgroundColor: '#000', alignItems: 'center' },
+  container: { flex: 1, width: '100%', maxWidth: 480, backgroundColor: COLORS.background, position: 'relative' },
+  flatListContent: { paddingBottom: 20 },
+  columnWrapper: { paddingHorizontal: SPACING.md, justifyContent: 'space-between', gap: SPACING.sm },
+  cardContainer: { marginBottom: SPACING.sm },
+  emptyContainer: { justifyContent: 'center', alignItems: 'center', paddingVertical: 100 },
+  emptyText: { fontSize: 18, fontWeight: '600', color: COLORS.text, marginTop: SPACING.md },
 });
