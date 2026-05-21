@@ -78,11 +78,11 @@ public class PedidoRepository {
         
                 ScanResponse scanResponse = dynamoDbClient.scan(scanRequest);
 
-                return mapearParaLisaDePedidos(scanResponse.items());
+                return mapearParaListaDePedidos(scanResponse.items());
     }
 
 
-    public void atualizarStatusPedidos(String pedidoId, String novoStatus){
+    public void atualizarStatusPedido(String pedidoId, String novoStatus){
 
         Map<String, AttributeValue> chave = new HashMap<>();
         chave.put("id", AttributeValue.builder().s(pedidoId).build());
@@ -135,6 +135,14 @@ public class PedidoRepository {
         }
 
         return pedido;
+    }
+
+
+    // 2. Adicione este método que estava faltando para o Scan funcionar
+    private List<Pedido> mapearParaListaDePedidos(List<Map<String, AttributeValue>> items) {
+        return items.stream()
+                .map(item -> converterMapaParaPedido(item))
+                .collect(Collectors.toList());
     }
 
     
