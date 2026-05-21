@@ -9,7 +9,11 @@ import io.swagger.v3.oas.annotations.OpenAPIDefinition;
     info = @io.swagger.v3.oas.annotations.info.Info(
         title = "API de Pedidos do Cardápio",
         version = "1.0",
-        description = "API para gerenciamento de pedidos do cardápio"
+        description = "API para gerenciamento de pedidos do cardápio",
+        contact = @io.swagger.v3.oas.annotations.info.Contact(
+            name = "João Vitor - Joãovirone",
+            email = "jovmamikl@gmail.com"
+        )
     )
 )
 public class SwaggerConfig {
