@@ -22,6 +22,9 @@ import { LoadingModal } from './src/components/LoadingModal';
 import { useCarrinho } from './src/hooks/useCarrinho';
 import { useProdutos } from './src/hooks/useProdutos';
 import { PedidoService } from './src/services/PedidoService';
+import { BottomNavBar } from './src/components/BottomNavBar';
+import { ProdutoDetalheModal } from './src/components/ProdutoDetalheModal';
+import { PerfilView } from './src/components/PerfilView';
 
 import { COLORS, SPACING } from './src/constants/theme';
 import { Produto } from './src/types';
@@ -39,6 +42,8 @@ export default function App() {
   const [carregandoPedido, setCarregandoPedido] = useState(false);
   const [numeroPedido, setNumeroPedido] = useState<string>();
   const [busca, setBusca] = useState('');
+  const [abaAtiva, setAbaAtiva] = useState('Cardapio');
+  const [produtoSelecionado, setProdutoSelecionado] = useState<Produto | null>(null);
 
   // ==================== HOOKS ====================
   const carrinho = useCarrinho();
@@ -111,12 +116,12 @@ export default function App() {
         <View style={[styles.cardContainer, { width: CARD_WIDTH }]}>
           <ProdutoCard
             produto={item}
-            // Arrumamos o nome da prop e passamos o produto inteiro
-            onAdicionar={() => handleAdicionarAoCarrinho(item)} 
+            // Agora o clique abre o modal de detalhes passando o lanche escolhido
+            onPress={(prod) => setProdutoSelecionado(prod)} 
           />
         </View>
       ),
-      [handleAdicionarAoCarrinho, CARD_WIDTH]
+      [CARD_WIDTH]
     );
 
   const renderListHeader = () => (
@@ -160,16 +165,39 @@ export default function App() {
 
       {carregando && <LoadingModal visivel mensagem="Carregando produtos..." />}
 
-      <FlatList
-        data={produtosFiltrados}
-        renderItem={renderProdutoCard}
-        keyExtractor={item => item.id}
-        numColumns={NUM_COLUMNS}
-        columnWrapperStyle={styles.columnWrapper}
-        ListHeaderComponent={renderListHeader}
-        ListEmptyComponent={!carregando ? renderListEmpty : null}
-        contentContainerStyle={styles.flatListContent}
-        showsVerticalScrollIndicator={false}
+      {/* RENDERIZAÇÃO CONDICIONAL DAS ABAS */}
+      {abaAtiva === 'Cardapio' ? (
+        <FlatList
+          data={produtosFiltrados}
+          renderItem={renderProdutoCard}
+          keyExtractor={item => item.id}
+          numColumns={NUM_COLUMNS}
+          columnWrapperStyle={styles.columnWrapper}
+          ListHeaderComponent={renderListHeader}
+          ListEmptyComponent={!carregando ? renderListEmpty : null}
+          contentContainerStyle={styles.flatListContent}
+          showsVerticalScrollIndicator={false}
+        />
+      ) : (
+        <PerfilView />
+      )}
+
+      <ProdutoDetalheModal
+        produto={produtoSelecionado}
+        visivel={!!produtoSelecionado}
+        onFechar={() => setProdutoSelecionado(null)}
+        onAdicionarAoCarrinho={(produto, qtd, obs) => {
+          carrinho.adicionarItem(produto, qtd);
+          // Opcional: Aqui você pode precisar ajustar o useCarrinho para aceitar "observacoes" na inserção
+          Alert.alert('Sucesso!', `${qtd}x ${produto.nome} adicionado(s).`);
+        }}
+      />
+
+      <BottomNavBar 
+        abaAtiva={abaAtiva}
+        setAbaAtiva={setAbaAtiva}
+        quantidadeCarrinho={carrinho.quantidadeTotalItens}
+        onAbrirCarrinho={() => setCarrinhoVisivel(true)}
       />
 
       <CarrinhoModal
@@ -198,7 +226,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   flatListContent: {
-    paddingBottom: SPACING.lg,
+    paddingBottom: 100,
   },
   columnWrapper: {
     paddingHorizontal: SPACING.md,
