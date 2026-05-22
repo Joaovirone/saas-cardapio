@@ -12,6 +12,7 @@ import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
 import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
 import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,24 +83,25 @@ public class PedidoRepository {
     }
 
 
-    public void atualizarStatusPedido(String pedidoId, String novoStatus){
+    public void atualizarStatusPedido(String pedidoId, String novoStatus) {
 
         Map<String, AttributeValue> chave = new HashMap<>();
         chave.put("id", AttributeValue.builder().s(pedidoId).build());
 
-        Map<String, AttributeValue> atualizacoes = new HashMap<>();
-        atualizacoes.put("status", AttributeValue.builder()
+        // Correção 1: O tipo do Map muda para AttributeValueUpdate
+        Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValueUpdate> atualizacoes = new HashMap<>();
+        
+        // Correção 2: Construção correta do AttributeValueUpdate
+        atualizacoes.put("status", software.amazon.awssdk.services.dynamodb.model.AttributeValueUpdate.builder()
                         .value(AttributeValue.builder().s(novoStatus).build())
                         .action(AttributeAction.PUT)
                         .build());
-
 
         UpdateItemRequest updateItemRequest = UpdateItemRequest.builder()
                 .tableName(tableName)
                 .key(chave)
                 .attributeUpdates(atualizacoes)
                 .build();   
-
 
         dynamoDbClient.updateItem(updateItemRequest);
         System.out.println("Status do pedido " + pedidoId + " atualizado para " + novoStatus);
