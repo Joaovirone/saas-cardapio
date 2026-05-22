@@ -29,7 +29,12 @@ public class SecurityConfig {
                 .requestMatchers("/auth/registrar", "/auth/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/pedidos").permitAll()
                 .requestMatchers(HttpMethod.POST, "/pedidos").permitAll()
+                .requestMatchers(HttpMethod.GET, "/produtos/**").permitAll()
                 .requestMatchers(HttpMethod.PATCH, "/pedidos/**/status").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/produtos/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/produtos/**").hasRole("ADMIN")  
+                .requestMatchers(HttpMethod.DELETE, "/produtos/**").hasRole("ADMIN")
+
             
                 .anyRequest().authenticated()
             )
