@@ -17,34 +17,28 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtService jwtService;
+    private final JwtAuthenticationFilter jwtAuthFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // Desabilitado pois tokens JWT são imunes a CSRF
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // API 100% Stateless
+            .csrf(csrf -> csrf.disable()) 
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Rotas Públicas (Qualquer cliente deslogado acessa)
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                .requestMatchers("/auth/registrar", "/auth/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/pedidos").permitAll()
-                .requestMatchers(HttpMethod.POST, "/pedidos").permitAll() // Guest Checkout liberado
-                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll() // Swagger Liberado
-                
-                // Rotas Protegidas (Apenas o Dono/Admin da Lanchonete pode executar)
+                .requestMatchers(HttpMethod.POST, "/pedidos").permitAll()
                 .requestMatchers(HttpMethod.PATCH, "/pedidos/**/status").hasRole("ADMIN")
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                
-                // Qualquer outra rota não mapeada exige login genérico
+            
                 .anyRequest().authenticated()
             )
-            // Injeta o nosso filtro utilitário antes do filtro padrão de usuário e senha do Spring
-            .addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Algoritmo robusto para encriptar as senhas no DynamoDB
+        return new BCryptPasswordEncoder(); 
     }
 }
