@@ -2,7 +2,7 @@ spring:
   application:
     name: cardapio-api
   main:
-    lazy-initialization: true 
+    lazy-initialization: true
 
 server:
   port: 8080
