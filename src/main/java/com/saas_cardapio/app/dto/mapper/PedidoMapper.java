@@ -7,8 +7,9 @@ import com.saas_cardapio.app.dto.PedidoRequestDto;
 import com.saas_cardapio.app.dto.PedidoResponseDto;
 import com.saas_cardapio.app.entity.Pedido;
 
+import lombok.NoArgsConstructor;
 
-@Component
+
 public class PedidoMapper {
 
     private final ModelMapper modelMapper;
