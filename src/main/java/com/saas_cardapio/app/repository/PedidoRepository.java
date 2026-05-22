@@ -25,7 +25,7 @@ public class PedidoRepository {
     private final String tableName; 
 
     public PedidoRepository(
-            DynamoDbClient dynamoDbClient, @Value("${aws.dynamodb.table}") String tableName) {
+            DynamoDbClient dynamoDbClient, @Value("${aws.dynamodb.table.pedidos:Pedidos}") String tableName) {
         this.dynamoDbClient = dynamoDbClient;
         this.tableName = tableName;
     }
