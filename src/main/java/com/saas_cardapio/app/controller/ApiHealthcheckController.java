@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
 @RequestMapping("/api/healthcheck")
-public class ApiHealthcheck {
+public class ApiHealthcheckController {
     
     @Operation(summary = "Verificar o status da API", description = "Endpoint para verificar se a API está funcionando corretamente. Retorna uma mensagem de status.")
     @GetMapping("/status")
