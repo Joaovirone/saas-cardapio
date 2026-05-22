@@ -26,6 +26,7 @@ import { MeusPedidosView } from './src/components/MeusPedidosView';
 
 // Importações do Estado Global
 import { UserProvider, useUser } from './src/context/UserContext';
+import { AuthProvider } from './src/context/AuthContext';
 
 import { useCarrinho } from './src/hooks/useCarrinho';
 import { useProdutos } from './src/hooks/useProdutos';
@@ -33,6 +34,7 @@ import { PedidoService } from './src/services/PedidoService';
 
 import { COLORS, SPACING } from './src/constants/theme';
 import { Produto } from './src/types';
+import CadastrarProdutosScreen from './src/components/CadastrarProdutosScreen';
 
 const NUM_COLUMNS = 2;
 
@@ -153,8 +155,12 @@ function MainAppContent() {
         )}
 
         {abaAtiva === 'Pedidos' && <MeusPedidosView />}
-        
-        {abaAtiva === 'Perfil' && <PerfilView />}
+
+        {/* Adicione a prop setAbaAtiva no PerfilView */}
+        {abaAtiva === 'Perfil' && <PerfilView setAbaAtiva={setAbaAtiva} />}
+
+        {/* Adicione a condição para a tela do Admin */}
+        {abaAtiva === 'Admin' && <CadastrarProdutosScreen navigation={{ goBack: () => setAbaAtiva('Cardapio') }} />}
 
         <BottomNavBar abaAtiva={abaAtiva} setAbaAtiva={setAbaAtiva} quantidadeCarrinho={carrinho.quantidadeTotalItens} onAbrirCarrinho={() => setCarrinhoVisivel(true)} />
 
@@ -185,12 +191,13 @@ function MainAppContent() {
   );
 }
 
-// O EXPORT PRINCIPAL ENVOLVIDO NO PROVIDER GLOBAL
 export default function App() {
   return (
-    <UserProvider>
-      <MainAppContent />
-    </UserProvider>
+    <AuthProvider>
+      <UserProvider>
+        <MainAppContent />
+      </UserProvider>
+    </AuthProvider>
   );
 }
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING } from '../constants/theme';
+import { useAuth } from '../context/AuthContext';
 
 interface BottomNavBarProps {
   abaAtiva: string;
@@ -10,26 +11,44 @@ interface BottomNavBarProps {
   onAbrirCarrinho: () => void;
 }
 
+// CORREÇÃO: Alterado de Props para BottomNavBarProps
 export function BottomNavBar({ abaAtiva, setAbaAtiva, quantidadeCarrinho, onAbrirCarrinho }: BottomNavBarProps) {
+  
+  const { isAdmin } = useAuth();
+
+  const abas = [
+    { id: 'Cardapio', nome: 'Início', icone: 'home' },
+    { id: 'Pedidos', nome: 'Pedidos', icone: 'receipt' },
+    { id: 'Perfil', nome: 'Perfil', icone: 'person' },
+  ];
+
+  if (isAdmin) {
+    abas.splice(2, 0, { id: 'Admin', nome: 'Gestão', icone: 'settings' });
+  }
+
   return (
     <View style={styles.container}>
-      
-      {/* ABA 1: CARDÁPIO */}
-      <TouchableOpacity style={styles.tab} onPress={() => setAbaAtiva('Cardapio')} activeOpacity={0.7}>
-        <Ionicons name={abaAtiva === 'Cardapio' ? 'fast-food' : 'fast-food-outline'} size={24} color={abaAtiva === 'Cardapio' ? COLORS.primary : COLORS.textSecondary} />
-        <Text style={[styles.tabText, abaAtiva === 'Cardapio' && styles.tabTextActive]}>Cardápio</Text>
-      </TouchableOpacity>
+      {abas.map((aba) => (
+        <TouchableOpacity 
+          key={aba.id} 
+          style={styles.tab} 
+          onPress={() => setAbaAtiva(aba.id)}
+        >
+          <Ionicons 
+            name={aba.icone as any} 
+            size={24} 
+            color={abaAtiva === aba.id ? COLORS.primary : COLORS.textSecondary} 
+          />
+          <Text style={[styles.tabText, { color: abaAtiva === aba.id ? COLORS.primary : COLORS.textSecondary }]}>
+            {aba.nome}
+          </Text>
+        </TouchableOpacity>
+      ))}
 
-      {/* ABA 2: MEUS PEDIDOS (NOVA) */}
-      <TouchableOpacity style={styles.tab} onPress={() => setAbaAtiva('Pedidos')} activeOpacity={0.7}>
-        <Ionicons name={abaAtiva === 'Pedidos' ? 'receipt' : 'receipt-outline'} size={24} color={abaAtiva === 'Pedidos' ? COLORS.primary : COLORS.textSecondary} />
-        <Text style={[styles.tabText, abaAtiva === 'Pedidos' && styles.tabTextActive]}>Pedidos</Text>
-      </TouchableOpacity>
-
-      {/* ABA 3: CARRINHO (Abre o Modal) */}
-      <TouchableOpacity style={styles.tab} onPress={onAbrirCarrinho} activeOpacity={0.7}>
+      {/* CORREÇÃO: Botão do Carrinho Restaurado */}
+      <TouchableOpacity style={styles.tab} onPress={onAbrirCarrinho}>
         <View style={styles.iconContainer}>
-          <Ionicons name="cart-outline" size={24} color={COLORS.textSecondary} />
+          <Ionicons name="cart" size={24} color={COLORS.textSecondary} />
           {quantidadeCarrinho > 0 && (
             <View style={styles.badge}>
               <Text style={styles.badgeText}>{quantidadeCarrinho}</Text>
@@ -37,12 +56,6 @@ export function BottomNavBar({ abaAtiva, setAbaAtiva, quantidadeCarrinho, onAbri
           )}
         </View>
         <Text style={styles.tabText}>Carrinho</Text>
-      </TouchableOpacity>
-
-      {/* ABA 4: PERFIL */}
-      <TouchableOpacity style={styles.tab} onPress={() => setAbaAtiva('Perfil')} activeOpacity={0.7}>
-        <Ionicons name={abaAtiva === 'Perfil' ? 'person' : 'person-outline'} size={24} color={abaAtiva === 'Perfil' ? COLORS.primary : COLORS.textSecondary} />
-        <Text style={[styles.tabText, abaAtiva === 'Perfil' && styles.tabTextActive]}>Perfil</Text>
       </TouchableOpacity>
 
     </View>
