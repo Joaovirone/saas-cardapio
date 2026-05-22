@@ -31,7 +31,11 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable()) 
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                .requestMatchers("/v3/api-docs/**", 
+                        "/swagger-ui/**", 
+                        "/swagger-ui.html", 
+                        "/swagger-resources/**",
+                        "/webjars/**").permitAll()
                 .requestMatchers("/auth/registrar", "/auth/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/pedidos").permitAll()
                 .requestMatchers(HttpMethod.POST, "/pedidos").permitAll()
