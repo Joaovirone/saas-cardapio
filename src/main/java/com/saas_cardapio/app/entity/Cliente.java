@@ -15,7 +15,7 @@ public class Cliente {
     private String telefone;
     private String endereco;
     private String cep;
-
+    private String role;
     public String getId() {
         return id;
     }
