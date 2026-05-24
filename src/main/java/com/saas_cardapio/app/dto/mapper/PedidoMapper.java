@@ -6,6 +6,9 @@ import org.springframework.stereotype.Component;
 import com.saas_cardapio.app.dto.PedidoRequestDto;
 import com.saas_cardapio.app.dto.PedidoResponseDto;
 import com.saas_cardapio.app.entity.Pedido;
+import com.saas_cardapio.app.entity.ItemPedido;
+
+import java.util.ArrayList;
 
 @Component
 public class PedidoMapper {
@@ -17,10 +20,24 @@ public class PedidoMapper {
     }
     
     public Pedido toPedido(PedidoRequestDto pedido){
-        return modelMapper.map(pedido, Pedido.class);
+        Pedido entity = new Pedido();
+        entity.setClienteNome(pedido.getNomeCliente());
+        entity.setTelefone(pedido.getTelefone());
+        entity.setItens(pedido.getItens() != null
+                ? new ArrayList<>(pedido.getItens().stream().map(item -> {
+                    ItemPedido itemPedido = new ItemPedido();
+                    itemPedido.setNome(item.getNome());
+                    itemPedido.setQuantidade(item.getQuantidade());
+                    itemPedido.setPreco(item.getPreco());
+                    return itemPedido;
+                }).toList())
+                : new ArrayList<>());
+        return entity;
     }
 
     public PedidoResponseDto toPedidoResponse(Pedido pedido){
-        return modelMapper.map(pedido, PedidoResponseDto.class);
+        PedidoResponseDto response = modelMapper.map(pedido, PedidoResponseDto.class);
+        response.setPedidoId(pedido.getId());
+        return response;
     }
 }

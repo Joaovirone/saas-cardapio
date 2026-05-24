@@ -1,6 +1,7 @@
 package com.saas_cardapio.app.service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,7 @@ public class PedidoService {
     
         Pedido novoPedido = pedidoMapper.toPedido(requestDto);
 
+        novoPedido.setId(UUID.randomUUID().toString());
         novoPedido.setStatus("RECEBIDO");
         novoPedido.setDataCriacao(java.time.Instant.now().toString());
 
