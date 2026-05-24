@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Switch, StyleSheet, Alert, ScrollView } from 'react-native';
-import { api } from '../services/api'; // Sua instância do Axios
+import { api } from '../services/api';
 
-export default function CadastrarProdutoScreen({ navigation }) {
+interface CadastrarProdutoScreenProps {
+  navigation: {
+    goBack: () => void;
+  };
+}
+
+export default function CadastrarProdutoScreen({ navigation }: CadastrarProdutoScreenProps) {
   const [nome, setNome] = useState('');
   const [descricao, setDescricao] = useState('');
   const [preco, setPreco] = useState('');
@@ -35,8 +41,7 @@ export default function CadastrarProdutoScreen({ navigation }) {
       navigation.goBack(); // Volta para a lista de produtos do admin
       
     } catch (error: any) {
-      // Captura o nosso StandardErrorDto bonitinho do GlobalExceptionHandler
-      const mensagemErro = error.response?.data?.message || 'Erro ao cadastrar o produto.';
+      const mensagemErro = error instanceof Error ? error.message : 'Erro ao cadastrar o produto.';
       Alert.alert('Ops!', mensagemErro);
     }
   };

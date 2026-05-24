@@ -33,8 +33,12 @@ export function PerfilView({ setAbaAtiva }: { setAbaAtiva?: (aba: string) => voi
       Alert.alert('Atenção', 'Preencha o e-mail e a senha para entrar.');
       return;
     }
-    // Futuramente a API real entra aqui
-    setAutenticado(true);
+    try {
+      await login(email, localSenha);
+      setAutenticado(true);
+    } catch (error) {
+      Alert.alert('Erro', error instanceof Error ? error.message : 'Não foi possível entrar.');
+    }
   };
 
   const handleRegistrar = () => {
@@ -78,7 +82,7 @@ export function PerfilView({ setAbaAtiva }: { setAbaAtiva?: (aba: string) => voi
           {/* BLOCO 1: USUÁRIO AUTENTICADO */}
           {autenticado && (
             <>
-              {/*isAdmin &&*/ setAbaAtiva && (
+              {isAdmin && setAbaAtiva && (
                 <TouchableOpacity 
                   style={styles.adminBtn} 
                   onPress={() => setAbaAtiva('Admin')} 

@@ -12,6 +12,17 @@ interface AuthContextData {
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
+const tokenTemRoleAdmin = (jwt: string | null) => {
+  if (!jwt) return false;
+  try {
+    const payloadBase64 = jwt.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const payload = JSON.parse(atob(payloadBase64));
+    return payload.role === 'ADMIN' || payload.role === 'ROLE_ADMIN';
+  } catch {
+    return false;
+  }
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(true);
@@ -48,7 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider value={{ 
       token, 
-      isAdmin: !!token, // Se tem token, assumimos que é admin no contexto deste app
+      isAdmin: tokenTemRoleAdmin(token),
       login, 
       logout, 
       carregando 

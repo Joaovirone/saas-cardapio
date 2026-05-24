@@ -76,23 +76,18 @@ function MainAppContent() {
     setCarregandoPedido(true);
     try {
       const pedidoRequest = {
-        cliente: {
-          nome: nome || 'Visitante',
-          telefone: telefone || 'Não informado',
-          // O Endereço agora vem direto do modal validado!
-          endereco: enderecoFinal 
-        },
-        items: carrinho.itens.map(item => ({
-          produtoId: item.produto.id,
+        nomeCliente: nome || 'Visitante',
+        telefone: telefone || 'Não informado',
+        itens: carrinho.itens.map(item => ({
+          nome: item.produto.nome,
           quantidade: item.quantidade,
-          observacoes: item.observacoes,
+          preco: item.produto.preco,
         })),
-        detalhesEntregaEPagamento: dadosCheckout,
       };
 
-      const resposta = await PedidoService.criarPedido(pedidoRequest as any);
+      const resposta = await PedidoService.criarPedido(pedidoRequest);
 
-      setNumeroPedido(resposta.id);
+      setNumeroPedido(resposta.pedidoId || resposta.id);
       setSucessoVisivel(true);
       carrinho.limparCarrinho();
       setCarrinhoVisivel(false);

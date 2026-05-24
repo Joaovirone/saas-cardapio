@@ -30,25 +30,31 @@ export interface Pedido {
 }
 
 export interface PedidoRequest {
-  items: Array<{
-    produtoId: string;
+  nomeCliente: string;
+  telefone: string;
+  itens: Array<{
+    nome: string;
     quantidade: number;
-    observacoes?: string;
+    preco?: number;
   }>;
-  observacoesGerais?: string;
 }
 
 export interface PedidoResponse {
-  id: string;
-  items: Array<{
-    produtoId: string;
+  id?: string;
+  pedidoId?: string;
+  mensagem?: string;
+  clienteNome?: string;
+  telefone?: string;
+  itens?: Array<{
+    nome: string;
     quantidade: number;
-    preco: number;
-    observacoes?: string;
+    preco?: number;
   }>;
-  total: number;
+  valorTotal?: number;
+  total?: number;
   status: string;
-  dataPedido: string;
+  dataCriacao?: string;
+  dataPedido?: string;
 }
 
 // ==================== FILTROS E BUSCA ====================
