@@ -1,0 +1,12 @@
+.git
+.codex
+.agents
+.github
+target
+*.log
+node_modules
+saas-cardapio-cozinha-front/node_modules
+saas-cardapio-cozinha-front/.next
+saas-cardapio-cozinha-front/tsconfig.tsbuildinfo
+saas-cliente-mobile/node_modules
+saas-cliente-mobile/.expo

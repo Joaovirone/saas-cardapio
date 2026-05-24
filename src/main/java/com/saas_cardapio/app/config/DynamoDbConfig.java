@@ -1,5 +1,8 @@
 package com.saas_cardapio.app.config;
 
+import java.net.URI;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -10,14 +13,24 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 @Configuration
 public class DynamoDbConfig {
-    
+
+    @Value("${aws.region:sa-east-1}")
+    private String region;
+
+    @Value("${aws.dynamodb.endpoint:}")
+    private String endpoint;
 
     @Bean
     public DynamoDbClient dynamoDbClient() {
-        return DynamoDbClient.builder()
-                    .region(Region.SA_EAST_1)
-                    .credentialsProvider(DefaultCredentialsProvider.create())
-                    .httpClient(UrlConnectionHttpClient.create())
-                    .build();
+        var builder = DynamoDbClient.builder()
+                .region(Region.of(region))
+                .credentialsProvider(DefaultCredentialsProvider.create())
+                .httpClient(UrlConnectionHttpClient.create());
+
+        if (endpoint != null && !endpoint.isBlank()) {
+            builder.endpointOverride(URI.create(endpoint));
+        }
+
+        return builder.build();
     }
 }

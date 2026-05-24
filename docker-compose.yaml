@@ -1,1 +1,61 @@
-services: {}
+services:
+  dynamodb:
+    image: amazon/dynamodb-local:2.6.1
+    command: "-jar DynamoDBLocal.jar -sharedDb -inMemory"
+    ports:
+      - "8000:8000"
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - dynamodb
+    environment:
+      AWS_ACCESS_KEY_ID: local
+      AWS_SECRET_ACCESS_KEY: local
+      AWS_REGION: sa-east-1
+      DYNAMODB_ENDPOINT: http://dynamodb:8000
+      DYNAMODB_INITIALIZE_LOCAL: "true"
+      APP_SEEDER_HABILITADO: "true"
+      JWT_SECRET: ChapaQuenteSaaSKeySuperSecretaParaAssinarTokensDeAcesso
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+      - maven-cache:/root/.m2
+
+  cozinha-front:
+    build:
+      context: ./saas-cardapio-cozinha-front
+      dockerfile: Dockerfile
+    depends_on:
+      - api
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8080
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./saas-cardapio-cozinha-front:/app
+      - cozinha-node-modules:/app/node_modules
+
+  cliente-mobile-web:
+    build:
+      context: ./saas-cliente-mobile
+      dockerfile: Dockerfile
+    depends_on:
+      - api
+    environment:
+      EXPO_PUBLIC_API_URL: http://localhost:8080
+    ports:
+      - "19006:19006"
+    volumes:
+      - ./saas-cliente-mobile:/app
+      - cliente-node-modules:/app/node_modules
+    profiles:
+      - mobile
+
+volumes:
+  maven-cache:
+  cozinha-node-modules:
+  cliente-node-modules:

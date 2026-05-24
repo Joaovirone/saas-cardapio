@@ -35,7 +35,8 @@ public class SecurityConfig {
                         "/swagger-ui/**", 
                         "/swagger-ui.html", 
                         "/swagger-resources/**",
-                        "/webjars/**").permitAll()
+                        "/webjars/**",
+                        "/api/healthcheck/**").permitAll()
                 .requestMatchers("/auth/registrar", "/auth/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/pedidos").permitAll()
                 .requestMatchers(HttpMethod.POST, "/pedidos").permitAll()
