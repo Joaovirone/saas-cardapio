@@ -30,6 +30,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable()) 
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/v3/api-docs/**", 
                         "/swagger-ui/**", 
@@ -56,18 +57,25 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
+    CorsConfiguration configuration = new CorsConfiguration();
+    
+    // Permite qualquer origem (localhost:3000, localhost:19006, etc)
+    configuration.setAllowedOriginPatterns(List.of("*"));
+    
+    // Permite todos os métodos (GET, POST, OPTIONS, etc)
+    configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+    
+    // Permite todos os cabeçalhos (Authorization, Content-Type)
+    configuration.setAllowedHeaders(List.of("*"));
+    
+    // Permite envio de credenciais/tokens
+    configuration.setAllowCredentials(true);
 
-        // em produção é necessário trocar pelo domínio do site real (frontend e etc, site - web)
-        configuration.setAllowedOriginPatterns(List.of("*")); 
-
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); 
-        return source;
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    // Aplica essa regra para todos os endpoints da API
+    source.registerCorsConfiguration("/**", configuration); 
+    
+    return source;
     }
     @Bean
     public PasswordEncoder passwordEncoder() {
