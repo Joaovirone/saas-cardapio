@@ -1,7 +1,16 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+// Descobre se o código está rodando no Servidor (Docker) ou no Navegador (Client-side)
+const isServer = typeof window === 'undefined';
+
+// O Pulo do Gato para o Docker: 
+// Se for no servidor SSR do Next.js, usa a rede interna (http://api:8080).
+// Se for no navegador do usuário, usa o localhost normal (http://localhost:8080).
+const API_BASE_URL = isServer 
+  ? (process.env.INTERNAL_API_URL || 'http://api:8080')
+  : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080');
 
 const getToken = () => {
-  if (typeof window === 'undefined') return null;
+  // Reaproveitamos a constante isServer para evitar erros de "window is not defined"
+  if (isServer) return null; 
   return window.localStorage.getItem('@SaaS_Token');
 };
 
