@@ -1,20 +1,55 @@
-// Descobre se o código está rodando no Servidor (Docker) ou no Navegador (Client-side)
+import { mockProdutos } from './mockData';
+
 const isServer = typeof window === 'undefined';
 
-// O Pulo do Gato para o Docker: 
-// Se for no servidor SSR do Next.js, usa a rede interna (http://api:8080).
-// Se for no navegador do usuário, usa o localhost normal (http://localhost:8080).
 const API_BASE_URL = isServer 
   ? (process.env.INTERNAL_API_URL || 'http://api:8080')
   : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080');
 
+// ==========================================================
+// INTERRUPTOR DE MOCK (Mude para false quando ligar o Java)
+const USE_MOCKS = true; 
+// ==========================================================
+
 const getToken = () => {
-  // Reaproveitamos a constante isServer para evitar erros de "window is not defined"
   if (isServer) return null; 
   return window.localStorage.getItem('@SaaS_Token');
 };
 
+// Simulador de atraso de rede (delay)
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  
+  // SEÇÃO MOCK: Intercepta a requisição antes de bater na rede
+  if (USE_MOCKS && !isServer) {
+    await delay(800); // Finge que a internet demorou 800ms (ótimo para testar loadings)
+    const method = options.method || 'GET';
+
+    console.log(`[MOCK] ${method} ${endpoint}`);
+
+    // Mock do Login
+    if (endpoint.includes('/auth/login') && method === 'POST') {
+      const body = JSON.parse(options.body as string);
+      if (body.email && body.senha) {
+        return { token: 'mock-jwt-token-super-seguro-123' } as T;
+      }
+      throw new Error('E-mail e senha são obrigatórios no mock.');
+    }
+
+    // Mock de Listar Produtos
+    if (endpoint.includes('/produtos') && method === 'GET') {
+      return mockProdutos as T;
+    }
+
+    // Mock de Criar Produto
+    if (endpoint.includes('/produtos') && method === 'POST') {
+      const novoProduto = JSON.parse(options.body as string);
+      return { id: Math.random().toString(), ...novoProduto } as T;
+    }
+  }
+
+  // SEÇÃO REAL: O código que você já tinha e funciona perfeitamente
   const token = getToken();
   const headers = new Headers(options.headers);
 
@@ -33,20 +68,20 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
 
   if (!response.ok) {
     let message = `Erro na API: ${response.status}`;
+    const responseText = await response.text();
+    
     try {
-      const body = await response.json();
-      message = body.message || body.mensagem || message;
+      if (responseText) {
+        const body = JSON.parse(responseText);
+        message = body.message || body.mensagem || message;
+      }
     } catch {
-      const text = await response.text();
-      if (text) message = text;
+      if (responseText) message = responseText;
     }
     throw new Error(message);
   }
 
-  if (response.status === 204) {
-    return undefined as T;
-  }
-
+  if (response.status === 204) return undefined as T;
   return response.json() as Promise<T>;
 }
 
