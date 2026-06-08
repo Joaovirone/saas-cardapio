@@ -1,3 +1,4 @@
+// src/services/formatters.ts
 export const formatarMoeda = (valor?: number) =>
   new Intl.NumberFormat('pt-BR', {
     style: 'currency',
