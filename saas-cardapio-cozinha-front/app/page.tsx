@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { ChefHat, ClipboardList, MonitorUp, ShieldCheck } from 'lucide-react';
 
 const atalhos = [
@@ -29,7 +30,9 @@ const atalhos = [
 ];
 
 export default function Home() {
+  
   return (
+    redirect('/login'),
     <main className="min-h-screen bg-[#F7F8FA] text-[#161A1D]">
       <section className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 py-8">
         <header className="flex flex-col gap-2 border-b border-[#DDE1E6] pb-6">
@@ -57,5 +60,7 @@ export default function Home() {
         </div>
       </section>
     </main>
+
+    
   );
 }
