@@ -63,8 +63,8 @@ public class DataSeeder implements CommandLineRunner {
             smash.setPreco(28.90);
             smash.setCategoria("Lanches");
             smash.setDisponivel(true);
+            smash.setImageUrl("https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80");
 
-            // Criando um ingrediente para o Smash
             Adicional baconExtra = new Adicional();
             baconExtra.setId(UUID.randomUUID().toString());
             baconExtra.setNome("Bacon Extra");
@@ -81,9 +81,34 @@ public class DataSeeder implements CommandLineRunner {
             refri.setPreco(6.00);
             refri.setCategoria("Bebidas");
             refri.setDisponivel(true);
+            refri.setImageUrl("https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80");
             refri.setAdicionais(new ArrayList<>());
             
             produtoRepository.salvar(refri);
+
+            // 3. Criando um Gelado
+            Produto gelado = new Produto();
+            gelado.setId(UUID.randomUUID().toString());
+            gelado.setNome("Gelado de Coco");
+            gelado.setDescricao("Porção de gelado cremoso de coco com raspas de chocolate.");
+            gelado.setPreco(14.50);
+            gelado.setCategoria("Gelados");
+            gelado.setDisponivel(true);
+            gelado.setImageUrl("https://images.unsplash.com/photo-1514516870925-8b80c4436fc9?auto=format&fit=crop&w=800&q=80");
+            gelado.setAdicionais(new ArrayList<>());
+            produtoRepository.salvar(gelado);
+
+            // 4. Criando uma Sobremesa
+            Produto brownie = new Produto();
+            brownie.setId(UUID.randomUUID().toString());
+            brownie.setNome("Brownie de Chocolate");
+            brownie.setDescricao("Brownie quente com calda de chocolate e sorvete de baunilha.");
+            brownie.setPreco(18.90);
+            brownie.setCategoria("Sobremesas");
+            brownie.setDisponivel(true);
+            brownie.setImageUrl("https://images.unsplash.com/photo-1603023736191-cef28f9dbb13?auto=format&fit=crop&w=800&q=80");
+            brownie.setAdicionais(new ArrayList<>());
+            produtoRepository.salvar(brownie);
 
             System.out.println("   -> Cardápio inicial semeado com sucesso.");
         } else {

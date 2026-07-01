@@ -38,6 +38,7 @@ public class SecurityConfig {
                         "/swagger-resources/**",
                         "/webjars/**",
                         "/api/healthcheck/**").permitAll()
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/auth/registrar", "/auth/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/pedidos").permitAll()
                 .requestMatchers(HttpMethod.POST, "/pedidos").permitAll()
