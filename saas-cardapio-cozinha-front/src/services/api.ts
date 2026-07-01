@@ -7,8 +7,8 @@ const API_BASE_URL = isServer
   : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080');
 
 // ==========================================================
-// INTERRUPTOR DE MOCK (Mude para false quando ligar o Java)
-const USE_MOCKS = true; 
+// MODO LOCAL: use a API real por padrão para validar o Docker
+const USE_MOCKS = process.env.NEXT_PUBLIC_USE_MOCKS === 'true';
 // ==========================================================
 
 const getToken = () => {

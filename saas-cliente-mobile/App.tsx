@@ -3,12 +3,11 @@ import {
   StyleSheet,
   View,
   Text,
-  SafeAreaView,
   StatusBar,
   FlatList,
   Alert,
   useWindowDimensions,
-  Platform
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -24,7 +23,6 @@ import { ProdutoDetalheModal } from './src/components/ProdutoDetalheModal';
 import { PerfilView } from './src/components/PerfilView';
 import { MeusPedidosView } from './src/components/MeusPedidosView';
 
-// Importações do Estado Global
 import { UserProvider, useUser } from './src/context/UserContext';
 import { AuthProvider } from './src/context/AuthContext';
 
@@ -43,42 +41,37 @@ function MainAppContent() {
   const appWidth = Platform.OS === 'web' ? Math.min(width, 480) : width;
   const CARD_WIDTH = (appWidth - (SPACING.md * 2) - SPACING.md) / NUM_COLUMNS;
 
-  // Lendo os dados de entrega globais do cliente
-  const { nome, endereco, telefone } = useUser();
+  const { nome, telefone } = useUser();
 
-  // ==================== ESTADOS ====================
   const [abaAtiva, setAbaAtiva] = useState('Cardapio');
   const [produtoSelecionado, setProdutoSelecionado] = useState<Produto | null>(null);
-  
+
   const [carrinhoVisivel, setCarrinhoVisivel] = useState(false);
   const [sucessoVisivel, setSucessoVisivel] = useState(false);
   const [carregandoPedido, setCarregandoPedido] = useState(false);
   const [numeroPedido, setNumeroPedido] = useState<string>();
   const [busca, setBusca] = useState('');
 
-  // ==================== HOOKS ====================
   const carrinho = useCarrinho();
   const { produtosFiltrados, categorias, filtros, setFiltros, carregando } = useProdutos();
 
-  // ==================== HANDLERS ====================
   const handleBusca = useCallback((texto: string) => {
     setBusca(texto);
-    setFiltros(prev => ({ ...prev, termo: texto }));
+    setFiltros((prev) => ({ ...prev, termo: texto }));
   }, [setFiltros]);
 
   const handleFiltrarCategoria = useCallback((categoria: string) => {
     const novaCategoria = categoria === 'Todos' ? undefined : categoria;
-    setFiltros(prev => ({ ...prev, categoria: novaCategoria }));
+    setFiltros((prev) => ({ ...prev, categoria: novaCategoria }));
   }, [setFiltros]);
 
-    const handleConfirmarPedido = useCallback(async (dadosCheckout: string, enderecoFinal: string) => {
-    
+  const handleConfirmarPedido = useCallback(async () => {
     setCarregandoPedido(true);
     try {
       const pedidoRequest = {
         nomeCliente: nome || 'Visitante',
         telefone: telefone || 'Não informado',
-        itens: carrinho.itens.map(item => ({
+        itens: carrinho.itens.map((item) => ({
           nome: item.produto.nome,
           quantidade: item.quantidade,
           preco: item.produto.preco,
@@ -92,23 +85,22 @@ function MainAppContent() {
       carrinho.limparCarrinho();
       setCarrinhoVisivel(false);
       setBusca('');
-    } catch (err) {
+    } catch {
       Alert.alert('Erro', 'Não foi possível confirmar o pedido. Tente novamente!', [{ text: 'OK' }]);
     } finally {
       setCarregandoPedido(false);
     }
   }, [carrinho, nome, telefone]);
 
-  // ==================== RENDERIZAÇÃO ====================
   const renderProdutoCard = useCallback(
-    ({ item }: { item: Produto }) => (
-      <View style={[styles.cardContainer, { width: CARD_WIDTH }]}>
-        <ProdutoCard
-          produto={item}
-          onPress={(prod) => setProdutoSelecionado(prod)}
-        />
-      </View>
-    ),
+    (renderInfo: { item: Produto }) => {
+      const { item } = renderInfo;
+      return (
+        <View style={[styles.cardContainer, { width: CARD_WIDTH }]}> 
+          <ProdutoCard produto={item} onPress={(prod) => setProdutoSelecionado(prod)} />
+        </View>
+      );
+    },
     [CARD_WIDTH]
   );
 
@@ -129,32 +121,27 @@ function MainAppContent() {
 
   return (
     <View style={styles.webWrapper}>
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor={COLORS.background} translucent={false} />
+      <View style={[styles.safeArea, styles.container]}>
+        <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} translucent={false} />
 
         {carregando && <LoadingModal visivel mensagem="Carregando produtos..." />}
 
-{/* RENDERIZAÇÃO CONDICIONAL DAS ABAS */}
         {abaAtiva === 'Cardapio' && (
           <FlatList
             data={produtosFiltrados}
             renderItem={renderProdutoCard}
-            keyExtractor={item => item.id}
+            keyExtractor={(item) => item.id}
             numColumns={NUM_COLUMNS}
             columnWrapperStyle={styles.columnWrapper}
             ListHeaderComponent={renderListHeader}
-            ListEmptyComponent={!carregando ? renderListEmpty : null}
+            ListEmptyComponent={carregando ? null : renderListEmpty}
             contentContainerStyle={styles.flatListContent}
             showsVerticalScrollIndicator={false}
           />
         )}
 
         {abaAtiva === 'Pedidos' && <MeusPedidosView />}
-
-        {/* Adicione a prop setAbaAtiva no PerfilView */}
         {abaAtiva === 'Perfil' && <PerfilView setAbaAtiva={setAbaAtiva} />}
-
-        {/* Adicione a condição para a tela do Admin */}
         {abaAtiva === 'Admin' && <CadastrarProdutosScreen navigation={{ goBack: () => setAbaAtiva('Cardapio') }} />}
 
         <BottomNavBar abaAtiva={abaAtiva} setAbaAtiva={setAbaAtiva} quantidadeCarrinho={carrinho.quantidadeTotalItens} onAbrirCarrinho={() => setCarrinhoVisivel(true)} />
@@ -181,7 +168,7 @@ function MainAppContent() {
         />
 
         <SucessoPedidoModal visivel={sucessoVisivel} numeroPedido={numeroPedido} onFechar={() => setSucessoVisivel(false)} />
-      </SafeAreaView>
+      </View>
     </View>
   );
 }
@@ -197,7 +184,8 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  webWrapper: { flex: 1, backgroundColor: '#000', alignItems: 'center' },
+  webWrapper: { flex: 1, backgroundColor: COLORS.background, alignItems: 'center' },
+  safeArea: { paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight ?? 0 : 0 },
   container: { flex: 1, width: '100%', maxWidth: 480, backgroundColor: COLORS.background, position: 'relative' },
   flatListContent: { paddingBottom: 20 },
   columnWrapper: { paddingHorizontal: SPACING.md, justifyContent: 'space-between', gap: SPACING.sm },
