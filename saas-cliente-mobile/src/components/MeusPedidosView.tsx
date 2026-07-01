@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING } from '../constants/theme';
+import { COLORS, SPACING, BORDER_RADIUS, SHADOWS } from '../constants/theme';
 import { useUser } from '../context/UserContext';
 
 // Mock de dados. Isso virá do GET /api/pedidos/cliente/{id} no futuro
@@ -9,17 +9,17 @@ const PEDIDOS_MOCK = [
   {
     id: 'PED-9021',
     data: 'Hoje, 20:45',
-    status: 'preparando', // pendente, preparando, entrega, concluido
-    total: 39.40,
-    itens: '1x Duplo Smash Bacon, 1x Coca-Cola Lata'
+    status: 'preparando',
+    total: 39.4,
+    itens: '1x Duplo Smash Bacon, 1x Coca-Cola Lata',
   },
   {
     id: 'PED-8814',
     data: '12 Maio, 19:30',
     status: 'concluido',
-    total: 62.40,
-    itens: '2x Classic Burger, 1x Suco Natural'
-  }
+    total: 62.4,
+    itens: '2x Classic Burger, 1x Suco Natural',
+  },
 ];
 
 export function MeusPedidosView() {
@@ -86,18 +86,18 @@ export function MeusPedidosView() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 40 },
-  title: { color: COLORS.text, fontSize: 24, fontWeight: 'bold', marginTop: 16 },
+  title: { color: COLORS.text, fontSize: 24, fontWeight: '800', marginTop: 16 },
   subtitle: { color: COLORS.textSecondary, fontSize: 14, textAlign: 'center', marginTop: 8, lineHeight: 22 },
-  header: { padding: SPACING.md, paddingTop: SPACING.xl, paddingBottom: SPACING.lg, borderBottomWidth: 1, borderColor: '#222' },
+  header: { padding: SPACING.md, paddingTop: SPACING.xl, paddingBottom: SPACING.lg, borderBottomWidth: 1, borderColor: COLORS.border, backgroundColor: COLORS.surface },
   headerTitle: { color: COLORS.text, fontSize: 28, fontWeight: '900' },
   listContent: { padding: SPACING.md, paddingBottom: 100 },
-  card: { backgroundColor: COLORS.surface, borderRadius: 16, padding: SPACING.md, marginBottom: SPACING.md, borderWidth: 1, borderColor: '#333' },
+  card: { backgroundColor: COLORS.surface, borderRadius: BORDER_RADIUS.xl, padding: SPACING.md, marginBottom: SPACING.md, borderWidth: 1, borderColor: COLORS.border, ...SHADOWS.sm },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 },
-  pedidoId: { color: COLORS.text, fontWeight: 'bold', fontSize: 16 },
+  pedidoId: { color: COLORS.text, fontWeight: '700', fontSize: 16 },
   pedidoData: { color: COLORS.textSecondary, fontSize: 13 },
   cardBody: { marginBottom: 16 },
   itensText: { color: COLORS.textSecondary, fontSize: 14, lineHeight: 20 },
   totalText: { color: COLORS.text, fontWeight: '900', fontSize: 16, marginTop: 8 },
-  statusBox: { flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: 10, borderWidth: 1, gap: 8 },
-  statusText: { fontWeight: 'bold', fontSize: 14 },
+  statusBox: { flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: BORDER_RADIUS.md, borderWidth: 1, gap: 8 },
+  statusText: { fontWeight: '700', fontSize: 14 },
 });

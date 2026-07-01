@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Switch, StyleSheet, Alert, ScrollView } from 'react-native';
 import { api } from '../services/api';
+import { COLORS, SPACING, BORDER_RADIUS } from '../constants/theme';
 
 interface CadastrarProdutoScreenProps {
   navigation: {
@@ -13,6 +14,7 @@ export default function CadastrarProdutoScreen({ navigation }: CadastrarProdutoS
   const [descricao, setDescricao] = useState('');
   const [preco, setPreco] = useState('');
   const [categoria, setCategoria] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
   const [disponivel, setDisponivel] = useState(true);
 
   const handleCadastrar = async () => {
@@ -28,6 +30,7 @@ export default function CadastrarProdutoScreen({ navigation }: CadastrarProdutoS
       descricao,
       preco: parseFloat(preco.replace(',', '.')), // Garante que o Java receba um Double válido
       categoria,
+      imageUrl: imageUrl || null,
       disponivel,
       adicionais: [] // Começa vazio, podemos adicionar depois
     };
@@ -72,7 +75,10 @@ export default function CadastrarProdutoScreen({ navigation }: CadastrarProdutoS
       />
 
       <Text style={styles.label}>Categoria</Text>
-      <TextInput style={styles.input} value={categoria} onChangeText={setCategoria} placeholder="Ex: Hambúrgueres" />
+      <TextInput style={styles.input} value={categoria} onChangeText={setCategoria} placeholder="Ex: Lanches, Gelados, Sobremesas" />
+
+      <Text style={styles.label}>URL da imagem</Text>
+      <TextInput style={styles.input} value={imageUrl} onChangeText={setImageUrl} placeholder="Cole a URL da imagem" autoCapitalize="none" />
 
       <View style={styles.switchContainer}>
         <Text style={styles.label}>Disponível para venda?</Text>
@@ -87,12 +93,12 @@ export default function CadastrarProdutoScreen({ navigation }: CadastrarProdutoS
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#f5f5f5' },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20, color: '#333' },
-  label: { fontSize: 16, marginBottom: 5, color: '#555' },
-  input: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 12, marginBottom: 15 },
+  container: { flex: 1, padding: 20, backgroundColor: COLORS.background },
+  title: { fontSize: 24, fontWeight: '800', marginBottom: 20, color: COLORS.text },
+  label: { fontSize: 16, marginBottom: 5, color: COLORS.textSecondary },
+  input: { backgroundColor: COLORS.surface, borderWidth: 1, borderColor: COLORS.border, borderRadius: BORDER_RADIUS.lg, padding: 12, marginBottom: 15, color: COLORS.text },
   textArea: { height: 100, textAlignVertical: 'top' },
   switchContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 30, marginTop: 10 },
-  button: { backgroundColor: '#e74c3c', padding: 15, borderRadius: 8, alignItems: 'center' },
-  buttonText: { color: '#fff', fontSize: 18, fontWeight: 'bold' }
+  button: { backgroundColor: COLORS.primary, padding: 15, borderRadius: BORDER_RADIUS.lg, alignItems: 'center' },
+  buttonText: { color: '#fff', fontSize: 18, fontWeight: '700' }
 });

@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, TYPOGRAPHY } from '../constants/theme';
+import { COLORS, SPACING, TYPOGRAPHY, BORDER_RADIUS, SHADOWS } from '../constants/theme';
 
 interface LoadingModalProps {
   visivel: boolean;
@@ -40,11 +40,14 @@ const styles = StyleSheet.create({
   },
   container: {
     backgroundColor: COLORS.surface,
-    borderRadius: 12,
+    borderRadius: BORDER_RADIUS.lg,
     paddingVertical: SPACING.xl,
     paddingHorizontal: SPACING.lg,
     alignItems: 'center',
     gap: SPACING.md,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    ...SHADOWS.sm,
   },
   mensagem: {
     fontSize: TYPOGRAPHY.md,

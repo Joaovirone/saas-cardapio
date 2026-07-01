@@ -8,7 +8,7 @@ import {
   Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, TYPOGRAPHY } from '../constants/theme';
+import { COLORS, SPACING, TYPOGRAPHY, BORDER_RADIUS, SHADOWS } from '../constants/theme';
 
 interface SucessoPedidoModalProps {
   visivel: boolean;
@@ -83,11 +83,14 @@ const styles = StyleSheet.create({
   },
   container: {
     backgroundColor: COLORS.surface,
-    borderRadius: 16,
+    borderRadius: BORDER_RADIUS.xl,
     paddingVertical: SPACING.xl,
     paddingHorizontal: SPACING.lg,
     alignItems: 'center',
     width: '80%',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    ...SHADOWS.md,
   },
   iconContainer: {
     marginBottom: SPACING.lg,

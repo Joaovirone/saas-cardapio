@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING } from '../constants/theme';
+import { COLORS, SPACING, BORDER_RADIUS, SHADOWS } from '../constants/theme';
 import { Produto } from '../types';
 
 interface ProdutoDetalheModalProps {
@@ -163,24 +163,24 @@ export function ProdutoDetalheModal({ produto, visivel, onFechar, onAdicionarAoC
 }
 
 const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'flex-end' },
-  sheet: { backgroundColor: COLORS.background, height: '90%', borderTopLeftRadius: 24, borderTopRightRadius: 24, overflow: 'hidden' },
-  closeBtn: { position: 'absolute', top: 16, right: 16, zIndex: 10, backgroundColor: 'rgba(0,0,0,0.5)', padding: 8, borderRadius: 20 },
-  image: { width: '100%', height: 250, backgroundColor: '#222' },
+  overlay: { flex: 1, backgroundColor: 'rgba(17, 24, 39, 0.55)', justifyContent: 'flex-end' },
+  sheet: { backgroundColor: COLORS.surface, height: '90%', borderTopLeftRadius: BORDER_RADIUS.xl, borderTopRightRadius: BORDER_RADIUS.xl, overflow: 'hidden', borderWidth: 1, borderColor: COLORS.border, ...SHADOWS.md },
+  closeBtn: { position: 'absolute', top: 16, right: 16, zIndex: 10, backgroundColor: COLORS.surface, padding: 8, borderRadius: 999, borderWidth: 1, borderColor: COLORS.border },
+  image: { width: '100%', height: 250, backgroundColor: COLORS.surfaceAlt },
   content: { padding: SPACING.md, paddingBottom: 100 },
   title: { color: COLORS.text, fontSize: 24, fontWeight: '900', marginBottom: 8 },
   desc: { color: COLORS.textSecondary, fontSize: 14, lineHeight: 20, marginBottom: 24 },
-  sectionTitle: { color: COLORS.text, fontSize: 18, fontWeight: 'bold', marginBottom: 12 },
-  extraRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: COLORS.surface, padding: 16, borderRadius: 12, marginBottom: 8, borderWidth: 1, borderColor: '#333' },
-  extraRowSelected: { borderColor: COLORS.primary, backgroundColor: '#2a1a10' },
+  sectionTitle: { color: COLORS.text, fontSize: 18, fontWeight: '700', marginBottom: 12 },
+  extraRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: COLORS.surfaceAlt, padding: 16, borderRadius: BORDER_RADIUS.lg, marginBottom: 8, borderWidth: 1, borderColor: COLORS.border },
+  extraRowSelected: { borderColor: COLORS.primary, backgroundColor: '#fff7ed' },
   extraInfo: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   extraName: { color: COLORS.text, fontSize: 15 },
-  extraPrice: { color: COLORS.primary, fontWeight: 'bold' },
-  footer: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: COLORS.surface, padding: SPACING.md, flexDirection: 'row', gap: SPACING.md, borderTopWidth: 1, borderColor: '#333' },
-  qtdContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.background, borderRadius: 12, borderWidth: 1, borderColor: '#333' },
+  extraPrice: { color: COLORS.primary, fontWeight: '700' },
+  footer: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: COLORS.surface, padding: SPACING.md, flexDirection: 'row', gap: SPACING.md, borderTopWidth: 1, borderColor: COLORS.border },
+  qtdContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.surfaceAlt, borderRadius: BORDER_RADIUS.lg, borderWidth: 1, borderColor: COLORS.border },
   qtdBtn: { padding: 12 },
-  qtdText: { color: COLORS.text, fontSize: 16, fontWeight: 'bold', minWidth: 20, textAlign: 'center' },
-  addBtn: { flex: 1, backgroundColor: COLORS.primary, borderRadius: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20 },
-  addBtnText: { color: '#FFF', fontWeight: 'bold', fontSize: 16 },
+  qtdText: { color: COLORS.text, fontSize: 16, fontWeight: '700', minWidth: 20, textAlign: 'center' },
+  addBtn: { flex: 1, backgroundColor: COLORS.primary, borderRadius: BORDER_RADIUS.lg, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20 },
+  addBtnText: { color: '#FFF', fontWeight: '700', fontSize: 16 },
   addBtnPrice: { color: '#FFF', fontWeight: '900', fontSize: 16 },
 });

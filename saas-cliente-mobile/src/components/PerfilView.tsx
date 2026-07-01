@@ -11,11 +11,15 @@ import {
   ScrollView
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING } from '../constants/theme';
+import { COLORS, SPACING, BORDER_RADIUS, SHADOWS } from '../constants/theme';
 import { useUser } from '../context/UserContext'; 
 import { useAuth } from '../context/AuthContext'; 
 
-export function PerfilView({ setAbaAtiva }: { setAbaAtiva?: (aba: string) => void }) {
+interface PerfilViewProps {
+  readonly setAbaAtiva?: (aba: string) => void;
+}
+
+export function PerfilView({ setAbaAtiva }: PerfilViewProps) {
   const [isRegistrando, setIsRegistrando] = useState(false);
 
   const {
@@ -72,7 +76,7 @@ export function PerfilView({ setAbaAtiva }: { setAbaAtiva?: (aba: string) => voi
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         
         <View style={styles.header}>
-          <Ionicons name={info.icone as any} size={80} color={COLORS.primary} />
+          <Ionicons name={info.icone as any} size={70} color={COLORS.primary} />
           <Text style={styles.title}>{info.titulo}</Text>
           <Text style={styles.subtitle}>{info.subtitulo}</Text>
         </View>
@@ -174,17 +178,17 @@ export function PerfilView({ setAbaAtiva }: { setAbaAtiva?: (aba: string) => voi
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   scrollContent: { paddingBottom: 40 },
-  header: { alignItems: 'center', paddingTop: 40, paddingBottom: 30, borderBottomWidth: 1, borderColor: '#222' },
-  title: { color: COLORS.text, fontSize: 24, fontWeight: 'bold', marginTop: 16 },
-  subtitle: { color: COLORS.textSecondary, fontSize: 13, marginTop: 4, textAlign: 'center', paddingHorizontal: 40 },
+  header: { alignItems: 'center', paddingTop: 40, paddingBottom: 30, borderBottomWidth: 1, borderColor: COLORS.border, backgroundColor: COLORS.surface, marginBottom: SPACING.md },
+  title: { color: COLORS.text, fontSize: 24, fontWeight: '800', marginTop: 16 },
+  subtitle: { color: COLORS.textSecondary, fontSize: 13, marginTop: 4, textAlign: 'center', paddingHorizontal: 40, lineHeight: 20 },
   form: { padding: SPACING.lg },
-  label: { color: COLORS.text, fontSize: 14, fontWeight: 'bold', marginBottom: 8, marginTop: 12 },
-  input: { backgroundColor: COLORS.surface, color: COLORS.text, borderRadius: 12, padding: 16, fontSize: 15, borderWidth: 1, borderColor: '#333' },
-  primaryBtn: { backgroundColor: COLORS.primary, padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 32 },
-  primaryBtnText: { color: '#FFF', fontWeight: 'bold', fontSize: 16 },
-  adminBtn: { backgroundColor: '#3b82f6', flexDirection: 'row', padding: 16, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginBottom: 20 },
-  secondaryBtn: { padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 8 },
-  secondaryBtnText: { color: COLORS.primary, fontWeight: 'bold', fontSize: 16 },
-  logoutBtn: { padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 8 },
-  logoutBtnText: { color: COLORS.error, fontWeight: 'bold', fontSize: 16 },
+  label: { color: COLORS.text, fontSize: 14, fontWeight: '700', marginBottom: 8, marginTop: 12 },
+  input: { backgroundColor: COLORS.surface, color: COLORS.text, borderRadius: BORDER_RADIUS.lg, padding: 16, fontSize: 15, borderWidth: 1, borderColor: COLORS.border, ...SHADOWS.sm },
+  primaryBtn: { backgroundColor: COLORS.primary, padding: 16, borderRadius: BORDER_RADIUS.lg, alignItems: 'center', marginTop: 32 },
+  primaryBtnText: { color: '#FFF', fontWeight: '700', fontSize: 16 },
+  adminBtn: { backgroundColor: '#2563eb', flexDirection: 'row', padding: 16, borderRadius: BORDER_RADIUS.lg, alignItems: 'center', justifyContent: 'center', marginBottom: 20 },
+  secondaryBtn: { padding: 16, borderRadius: BORDER_RADIUS.lg, alignItems: 'center', marginTop: 8, backgroundColor: COLORS.surfaceAlt },
+  secondaryBtnText: { color: COLORS.primary, fontWeight: '700', fontSize: 16 },
+  logoutBtn: { padding: 16, borderRadius: BORDER_RADIUS.lg, alignItems: 'center', marginTop: 8, backgroundColor: '#fef2f2' },
+  logoutBtnText: { color: COLORS.error, fontWeight: '700', fontSize: 16 },
 });

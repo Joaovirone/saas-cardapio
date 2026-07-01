@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING } from '../constants/theme';
+import { COLORS, SPACING, BORDER_RADIUS } from '../constants/theme';
 
 interface SearchBarProps {
   value: string;
@@ -13,7 +13,7 @@ interface SearchBarProps {
 export function SearchBar({ value, onChangeText, onClear, placeholder }: SearchBarProps) {
   return (
     <View style={styles.container}>
-      <Ionicons name="search" size={20} color={COLORS.textSecondary} style={styles.icon} />
+      <Ionicons name="search" size={18} color={COLORS.textSecondary} style={styles.icon} />
       <TextInput
         style={styles.input}
         value={value}
@@ -24,7 +24,7 @@ export function SearchBar({ value, onChangeText, onClear, placeholder }: SearchB
       />
       {value.length > 0 && (
         <TouchableOpacity onPress={onClear} style={styles.clearButton}>
-          <Ionicons name="close-circle" size={20} color={COLORS.textSecondary} />
+          <Ionicons name="close-circle" size={18} color={COLORS.textSecondary} />
         </TouchableOpacity>
       )}
     </View>
@@ -37,12 +37,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: COLORS.surface,
     marginHorizontal: SPACING.md,
-    borderRadius: 16,
+    borderRadius: BORDER_RADIUS.xl,
     paddingHorizontal: SPACING.md,
     height: 50,
     marginBottom: SPACING.md,
     borderWidth: 1,
-    borderColor: '#333',
+    borderColor: COLORS.border,
   },
   icon: {
     marginRight: SPACING.sm,

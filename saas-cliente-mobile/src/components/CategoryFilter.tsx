@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { COLORS, SPACING } from '../constants/theme';
+import { COLORS, SPACING, BORDER_RADIUS } from '../constants/theme';
 
 interface CategoryFilterProps {
   categorias: string[];
@@ -9,17 +9,10 @@ interface CategoryFilterProps {
 }
 
 export function CategoryFilter({ categorias, ativa, onSelect }: CategoryFilterProps) {
-  const listaLimpa = Array.from(new Set(
-    categorias.includes('Todos') ? categorias : ['Todos', ...categorias]
-  ));
+  const listaLimpa = Array.from(new Set(categorias.includes('Todos') ? categorias : ['Todos', ...categorias]));
 
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.scrollContent}
-      style={styles.container}
-    >
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollContent} style={styles.container}>
       {listaLimpa.map((cat) => (
         <TouchableOpacity
           key={cat}
@@ -37,8 +30,15 @@ export function CategoryFilter({ categorias, ativa, onSelect }: CategoryFilterPr
 const styles = StyleSheet.create({
   container: { marginBottom: SPACING.md },
   scrollContent: { paddingHorizontal: SPACING.md, gap: SPACING.sm },
-  button: { backgroundColor: COLORS.surface, paddingHorizontal: 20, paddingVertical: 10, borderRadius: 12, borderWidth: 1, borderColor: '#333' },
+  button: {
+    backgroundColor: COLORS.surface,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: BORDER_RADIUS.lg,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
   buttonActive: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
-  text: { color: COLORS.textSecondary, fontWeight: 'bold', fontSize: 14 },
+  text: { color: COLORS.textSecondary, fontWeight: '700', fontSize: 14 },
   textActive: { color: '#FFF' },
 });
