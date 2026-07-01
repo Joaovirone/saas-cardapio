@@ -38,14 +38,43 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     }
 
     // Mock de Listar Produtos
-    if (endpoint.includes('/produtos') && method === 'GET') {
+    if (endpoint === '/produtos' && method === 'GET') {
       return mockProdutos as T;
     }
 
+    // Mock de Buscar Produto por ID
+    if (endpoint.startsWith('/produtos/') && method === 'GET') {
+      const id = endpoint.split('/')[2];
+      const produto = mockProdutos.find(item => item.id === id);
+      if (!produto) throw new Error('Produto não encontrado.');
+      return produto as T;
+    }
+
     // Mock de Criar Produto
-    if (endpoint.includes('/produtos') && method === 'POST') {
+    if (endpoint === '/produtos' && method === 'POST') {
       const novoProduto = JSON.parse(options.body as string);
-      return { id: Math.random().toString(), ...novoProduto } as T;
+      const produtoCriado = { id: Math.random().toString(), ...novoProduto };
+      mockProdutos.unshift(produtoCriado);
+      return produtoCriado as T;
+    }
+
+    // Mock de Atualizar Produto
+    if (endpoint.startsWith('/produtos/') && method === 'PUT') {
+      const id = endpoint.split('/')[2];
+      const dadosAtualizados = JSON.parse(options.body as string);
+      const index = mockProdutos.findIndex(item => item.id === id);
+      if (index === -1) throw new Error('Produto não encontrado.');
+      mockProdutos[index] = { ...mockProdutos[index], ...dadosAtualizados };
+      return mockProdutos[index] as T;
+    }
+
+    // Mock de Excluir Produto
+    if (endpoint.startsWith('/produtos/') && method === 'DELETE') {
+      const id = endpoint.split('/')[2];
+      const index = mockProdutos.findIndex(item => item.id === id);
+      if (index === -1) throw new Error('Produto não encontrado.');
+      mockProdutos.splice(index, 1);
+      return undefined as T;
     }
   }
 

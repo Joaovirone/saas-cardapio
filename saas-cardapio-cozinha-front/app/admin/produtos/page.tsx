@@ -20,6 +20,7 @@ export default function GestaoProdutos() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [formAberto, setFormAberto] = useState(false);
   const [form, setForm] = useState<ProdutoRequest>(produtoInicial);
+  const [produtoEditando, setProdutoEditando] = useState<Produto | null>(null);
   const [precoTexto, setPrecoTexto] = useState('0,00');
   const [erro, setErro] = useState('');
   const [loading, setLoading] = useState(false);
@@ -78,22 +79,61 @@ export default function GestaoProdutos() {
     setSalvando(true);
 
     try {
-      const produtoCriado = await ProdutoService.criarProduto({
-        ...form,
-        preco: Number(form.preco),
-        imageUrl: form.imageUrl?.trim() || undefined,
-        adicionais: [],
-      });
-      setProdutos(prev => [produtoCriado, ...prev]);
+      if (produtoEditando) {
+        const produtoAtualizado = await ProdutoService.atualizarProduto(produtoEditando.id, {
+          ...form,
+          preco: Number(form.preco),
+          imageUrl: form.imageUrl?.trim() || undefined,
+          adicionais: [],
+        });
+        setProdutos(prev => prev.map(produto => (produto.id === produtoEditando.id ? produtoAtualizado : produto)));
+      } else {
+        const produtoCriado = await ProdutoService.criarProduto({
+          ...form,
+          preco: Number(form.preco),
+          imageUrl: form.imageUrl?.trim() || undefined,
+          adicionais: [],
+        });
+        setProdutos(prev => [produtoCriado, ...prev]);
+      }
+      setProdutoEditando(null);
       setForm(produtoInicial);
       setPrecoTexto('0,00');
       setFormAberto(false);
     } catch (error) {
       const mensagem = error instanceof Error ? error.message : 'Erro ao cadastrar o produto.';
-      console.error('Erro ao criar produto:', error);
+      console.error('Erro ao criar/atualizar o produto:', error);
       setErro(mensagem);
     } finally {
       setSalvando(false);
+    }
+  };
+
+  const handleEditar = (produto: Produto) => {
+    setProdutoEditando(produto);
+    setForm({
+      nome: produto.nome,
+      descricao: produto.descricao,
+      preco: produto.preco,
+      categoria: produto.categoria,
+      imageUrl: produto.imageUrl,
+      disponivel: produto.disponivel,
+      adicionais: produto.adicionais ?? [],
+    });
+    setPrecoTexto(produto.preco.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+    setFormAberto(true);
+  };
+
+  const handleExcluir = async (id: string) => {
+    const confirmacao = window.confirm('Tem certeza que deseja excluir este produto?');
+    if (!confirmacao) return;
+
+    try {
+      await ProdutoService.deletarProduto(id);
+      setProdutos(prev => prev.filter(produto => produto.id !== id));
+    } catch (error) {
+      console.error('Erro ao excluir produto:', error);
+      setErro('Erro ao excluir o produto. Tente novamente.');
     }
   };
 
@@ -272,8 +312,16 @@ export default function GestaoProdutos() {
                 </td>
                 <td className="px-8 py-5 text-right">
                   <div className="flex justify-end gap-2">
-                    <button className="p-2.5 rounded-xl bg-zinc-50 text-zinc-600 hover:bg-orange-100 hover:text-orange-600 transition-all"><Edit3 size={18} /></button>
-                    <button className="p-2.5 rounded-xl bg-zinc-50 text-zinc-600 hover:bg-red-50 hover:text-red-600 transition-all"><Trash2 size={18} /></button>
+                    <button
+                      type="button"
+                      onClick={() => handleEditar(produto)}
+                      className="p-2.5 rounded-xl bg-zinc-50 text-zinc-600 hover:bg-orange-100 hover:text-orange-600 transition-all"
+                    ><Edit3 size={18} /></button>
+                    <button
+                      type="button"
+                      onClick={() => handleExcluir(produto.id)}
+                      className="p-2.5 rounded-xl bg-zinc-50 text-zinc-600 hover:bg-red-50 hover:text-red-600 transition-all"
+                    ><Trash2 size={18} /></button>
                   </div>
                 </td>
               </tr>
