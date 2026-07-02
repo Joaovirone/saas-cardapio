@@ -16,11 +16,11 @@ import java.io.OutputStream;
 
 public class StreamLambdaHandler implements RequestStreamHandler {
     
-    private static SpringBootLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler;
+    private static SpringBootLambdaContainerHandler<HttpApiV2ProxyRequest, AwsProxyResponse> handler;
     
     static {
         try {
-            handler = SpringBootLambdaContainerHandler.getAwsProxyHandler(AppApplication.class);
+            handler = SpringBootLambdaContainerHandler.getHttpApiV2ProxyHandler(AppApplication.class);
         } catch (ContainerInitializationException e) {
             e.printStackTrace();
             throw new RuntimeException("Falha ao iniciar a aplicação Spring Boot na AWS", e);
