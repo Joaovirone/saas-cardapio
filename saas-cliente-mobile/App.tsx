@@ -65,7 +65,7 @@ function MainAppContent() {
     setFiltros((prev) => ({ ...prev, categoria: novaCategoria }));
   }, [setFiltros]);
 
-  const handleConfirmarPedido = useCallback(async () => {
+  const handleConfirmarPedido = useCallback(async (dadosPedido: string, enderecoFinal: string) => {
     setCarregandoPedido(true);
     try {
       const pedidoRequest = {
@@ -85,7 +85,8 @@ function MainAppContent() {
       carrinho.limparCarrinho();
       setCarrinhoVisivel(false);
       setBusca('');
-    } catch {
+    } catch (error) {
+      console.error('Erro ao confirmar pedido:', error);
       Alert.alert('Erro', 'Não foi possível confirmar o pedido. Tente novamente!', [{ text: 'OK' }]);
     } finally {
       setCarregandoPedido(false);

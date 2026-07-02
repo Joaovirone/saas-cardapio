@@ -31,7 +31,7 @@ const mockPedidos: Pedido[] = [
 ];
 
 // O interruptor que garante que não vamos travar tentando achar a API
-const USE_MOCKS = true; 
+const USE_MOCKS = false; 
 
 export const PedidoService = {
   listarPedidos: async (): Promise<Pedido[]> => {

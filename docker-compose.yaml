@@ -34,7 +34,7 @@ services:
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8080
       INTERNAL_API_URL: http://api:8080
-      NEXT_PUBLIC_USE_MOCKS: "true"
+      NEXT_PUBLIC_USE_MOCKS: "false"
     ports:
       - "3000:3000"
     volumes:
