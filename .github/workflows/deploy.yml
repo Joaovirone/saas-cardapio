@@ -1,11 +1,9 @@
 name: Deploy SaaS Cardápio - CI/CD
 
 on:
-  pull_request:
+  push:
     branches:
       - master
-    #types:
-    #  - closed # Executa quando o PR é fechado
 
 concurrency:
   group: "deploy-prd"
@@ -13,7 +11,6 @@ concurrency:
 
 jobs:
   testes-automatizados:
-    
     runs-on: ubuntu-latest
 
     steps:
@@ -33,7 +30,6 @@ jobs:
   deploy-to-aws:
     needs: testes-automatizados 
     runs-on: ubuntu-latest
-    #environment: production
 
     steps:
       - name: Checkout do repositório
