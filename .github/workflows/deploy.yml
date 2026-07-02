@@ -4,8 +4,8 @@ on:
   pull_request:
     branches:
       - master
-    types:
-      - closed # Executa quando o PR é fechado
+    #types:
+    #  - closed # Executa quando o PR é fechado
 
 concurrency:
   group: "deploy-prd"
@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   testes-automatizados:
-    if: github.event.pull_request.merged == true
+    #if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
