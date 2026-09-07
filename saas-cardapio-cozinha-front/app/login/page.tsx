@@ -6,8 +6,8 @@ import { api } from '../../src/services/api';
 import { ChefHat, Loader2, LockKeyhole, Terminal } from 'lucide-react';
 
 export default function LoginAdmin() {
-  const [email, setEmail] = useState('joao.admin@admin.com');
-  const [senha, setSenha] = useState('senha123');
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
   
@@ -22,8 +22,8 @@ export default function LoginAdmin() {
       const response = await api.post<{ token: string }>('/auth/login', { email, senha });
       window.localStorage.setItem('@SaaS_Token', response.token);
       router.push('/admin/painel'); 
-    } catch (err: any) {
-      setErro(err.message || 'Credenciais inválidas. Tente novamente.');
+    } catch (err: unknown) {
+      setErro(err instanceof Error ? err.message : 'Credenciais inválidas. Tente novamente.');
     } finally {
       setCarregando(false);
     }
@@ -47,7 +47,7 @@ export default function LoginAdmin() {
 
           <form onSubmit={handleLogin} className="p-8 space-y-6">
             <div className="bg-blue-50 text-blue-700 px-4 py-3 rounded-xl text-xs font-bold border border-blue-100 flex items-center gap-2 justify-center">
-              <Terminal size={14} /> Modo Front-end (API Mockada)
+              <Terminal size={14} /> Ambiente conectado a API
             </div>
 
             {erro && <div className="bg-red-50/80 text-red-600 p-4 rounded-xl text-sm font-semibold border border-red-100 text-center animate-bounce">{erro}</div>}
