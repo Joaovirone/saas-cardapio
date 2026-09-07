@@ -8,6 +8,7 @@ import com.saas_cardapio.app.repository.ProdutoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +24,7 @@ public class DataSeeder implements CommandLineRunner {
     private final ClienteRepository clienteRepository;
     private final ProdutoRepository produtoRepository;
     private final PasswordEncoder passwordEncoder;
+    private final Environment environment;
 
     @Override
     public void run(String... args) throws Exception {
@@ -33,14 +35,15 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void seedAdminUser() {
-        String emailAdmin = "joao.admin@admin.com";
+        String emailAdmin = requiredEnvironmentValue("APP_ADMIN_EMAIL");
+        String senhaAdmin = requiredEnvironmentValue("APP_ADMIN_PASSWORD");
         
         // Verifica se o admin já existe para não duplicar toda vez que reiniciar o app
         if (clienteRepository.buscarPorEmail(emailAdmin) == null) {
             Cliente admin = new Cliente();
             admin.setNome("João Vitor (Admin)");
             admin.setEmail(emailAdmin);
-            admin.setSenha(passwordEncoder.encode("admin123")); 
+            admin.setSenha(passwordEncoder.encode(senhaAdmin));
             admin.setRole("ADMIN"); // A permissão master que configuramos no SecurityConfig
             admin.setTelefone("79999999999"); // DDD de Sergipe pronto pro teste
 
@@ -49,6 +52,14 @@ public class DataSeeder implements CommandLineRunner {
         } else {
             System.out.println("   -> Usuário ADMIN já existe. Pulando criação.");
         }
+    }
+
+    private String requiredEnvironmentValue(String name) {
+        String value = environment.getProperty(name);
+        if (value == null || value.isBlank()) {
+            throw new IllegalStateException("A variável de ambiente " + name + " é obrigatória quando o seeder está habilitado.");
+        }
+        return value;
     }
 
     private void seedCardapioInicial() {
