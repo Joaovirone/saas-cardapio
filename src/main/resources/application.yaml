@@ -16,7 +16,7 @@ app:
   
   security:
     jwt:
-      secret: ${JWT_SECRET:ChapaQuenteSaaSKeySuperSecretaParaAssinarTokensDeAcesso}
+      secret: ${JWT_SECRET}
       expiration: ${JWT_EXPIRATION:36000000} 
 
 aws:
